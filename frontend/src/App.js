@@ -12,6 +12,17 @@ import InvoicesViewAll from "./pages/dashboard/invoices/InvoicesViewAll";
 import { AuthProvider } from "./context/AuthContext";
 import IndexRoute from "./IndexRoute";
 import NotFound from "./pages/NotFound";
+import CompaniesViewAll from "./pages/dashboard/companies/CompaniesViewAll";
+import CompaniesNew from "./pages/dashboard/companies/CompaniesNew";
+import CompaniesEdit from "./pages/dashboard/companies/CompaniesEdit";
+import InvoiceSeriesViewAll from "./pages/dashboard/invoices/series/InvoiceSeriesViewAll";
+import InvoicesEdit from "./pages/dashboard/invoices/InvoicesEdit";
+import InvoicesNew from "./pages/dashboard/invoices/InvoicesNew";
+import InvoicesPreview from "./pages/dashboard/invoices/InvoicesPreview";
+import InvoiceSeriesNew from "./pages/dashboard/invoices/series/InvoiceSeriesNew";
+import InvoiceSeriesEdit from "./pages/dashboard/invoices/series/InvoiceSeriesEdit";
+
+import { DashboardLayoutProvider } from "./context/DashboardLayoutContext";
 
 function App() {
   return (
@@ -41,12 +52,33 @@ function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <DashboardLayout />
+                  <DashboardLayoutProvider>
+                    <DashboardLayout />
+                  </DashboardLayoutProvider>
                 </ProtectedRoute>
               }
             >
               <Route index element={<Dashboard />} />
               <Route path="invoices" element={<InvoicesViewAll />} />
+
+              <Route path="companies">
+                <Route index element={<CompaniesViewAll />} />
+                <Route path="new" element={<CompaniesNew />} />
+                <Route path="edit/:id" element={<CompaniesEdit />} />
+              </Route>
+
+              <Route path="invoices">
+                <Route index element={<InvoicesViewAll />} />
+                <Route path="new" element={<InvoicesNew />} />
+                <Route path="preview" element={<InvoicesPreview />} />
+                <Route path="edit/:id" element={<InvoicesEdit />} />
+
+                <Route path="series">
+                  <Route index element={<InvoiceSeriesViewAll />} />
+                  <Route path="new" element={<InvoiceSeriesNew />} />
+                  <Route path="edit/:id" element={<InvoiceSeriesEdit />} />
+                </Route>
+              </Route>
             </Route>
 
             {/* 404 Route */}

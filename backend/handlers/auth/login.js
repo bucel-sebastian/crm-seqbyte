@@ -5,10 +5,8 @@ const jwt = require("jsonwebtoken");
 const loginHandler = async (req, res) => {
   const { email, password, remember_me } = req.body;
 
-  if (!username || !passord) {
-    return res
-      .status(400)
-      .json({ error: "Username and password are required" });
+  if (!email || !password) {
+    return res.status(200).json({status: "fail", error: "Email and password are required" });
   }
 
   const dbResponse = await db.select("crm_users", [
@@ -19,15 +17,15 @@ const loginHandler = async (req, res) => {
     const user = await dbResponse[0];
 
     if (!user.is_active) {
-      return res.status(401).json({ error: "User is not activated" });
+      return res.status(200).json({status: "fail", error: "User is not activated" });
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-      return res.status(401).json({ error: "Wrong password" });
+      return res.status(200).json({status: "fail", error: "Wrong password" });
     }
 
-    const token = jwt.sign(
+    const token = await jwt.sign(
       {
         id: user.id,
         email: user.email,
@@ -39,10 +37,10 @@ const loginHandler = async (req, res) => {
       { expiresIn: remember_me ? "7d" : "12h" }
     );
 
-    return res.json({ token });
+    return res.json({status: "success", token });
   }
 
-  return res.status(401).json({ error: "User doesn't exist" });
+  return res.status(200).json({status: "fail", error: "User doesn't exist" });
 };
 
 module.exports = { loginHandler };
