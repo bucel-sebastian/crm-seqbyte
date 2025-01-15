@@ -6,7 +6,7 @@ function Login() {
   const nonce = useNonce();
 
   return (
-    <div>
+    <div className="auth-main-content">
       <LoginForm nonce={nonce} />
     </div>
   );

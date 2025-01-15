@@ -23,6 +23,9 @@ import InvoiceSeriesNew from "./pages/dashboard/invoices/series/InvoiceSeriesNew
 import InvoiceSeriesEdit from "./pages/dashboard/invoices/series/InvoiceSeriesEdit";
 
 import { DashboardLayoutProvider } from "./context/DashboardLayoutContext";
+import ClientsViewAll from "./pages/dashboard/clients/ClientsViewAll";
+import ClientsNew from "./pages/dashboard/clients/ClientsNew";
+import ClientsEdit from "./pages/dashboard/clients/ClientsEdit";
 
 function App() {
   return (
@@ -65,6 +68,12 @@ function App() {
                 <Route index element={<CompaniesViewAll />} />
                 <Route path="new" element={<CompaniesNew />} />
                 <Route path="edit/:id" element={<CompaniesEdit />} />
+              </Route>
+
+              <Route path="clients">
+                <Route index element={<ClientsViewAll />} />
+                <Route path="new" element={<ClientsNew />} />
+                <Route path="edit/:id" element={<ClientsEdit />} />
               </Route>
 
               <Route path="invoices">

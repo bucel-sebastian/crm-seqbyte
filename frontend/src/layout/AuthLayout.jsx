@@ -1,10 +1,10 @@
 import React from "react";
 import { Outlet } from "react-router";
-import { ToastContainer,Bounce } from 'react-toastify';
+import { ToastContainer, Bounce } from "react-toastify";
 
 function AuthLayout() {
   return (
-    <div>
+    <main className="auth-main">
       <Outlet />
       <ToastContainer
         position="bottom-right"
@@ -17,9 +17,9 @@ function AuthLayout() {
         draggable
         pauseOnHover
         theme="colored"
-        transition={Bounce} />
-    </div>
-
+        transition={Bounce}
+      />
+    </main>
   );
 }
 

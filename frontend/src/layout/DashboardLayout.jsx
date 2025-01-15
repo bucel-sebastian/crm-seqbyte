@@ -17,7 +17,9 @@ function DashboardLayout() {
         <main
           className={`dashboard-main ${sidebarIsOpened && "sidebar-is-opened"}`}
         >
-          <Outlet />
+          <div className="dashboard-main-content">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
