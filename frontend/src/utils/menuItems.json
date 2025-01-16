@@ -1,0 +1,65 @@
+[
+  {
+    "name": "Acasă",
+    "url": "/dashboard",
+    "icon": "FaHouseChimney"
+  },
+  {
+    "name": "Companii",
+    "url": null,
+    "icon": "FaBriefcase",
+    "permissionRoles": ["admin"],
+    "submenu": [
+      {
+        "name": "Toate companiile",
+        "url": "/dashboard/companies"
+      },
+      {
+        "name": "Companie noua",
+        "url": "/dashboard/companies/new"
+      }
+    ]
+  },
+  {
+    "name": "Clienți",
+    "url": null,
+    "icon": "FaUserTie",
+    "permissionRoles": ["admin", "employe"],
+    "submenu": [
+      {
+        "name": "Toți clienți",
+        "url": "/dashboard/clients"
+      },
+      {
+        "name": "Client nou",
+        "url": "/dashboard/clients/new"
+      }
+    ]
+  },
+  {
+    "name": "Financiar",
+    "url": null,
+    "icon": "FaFileInvoiceDollar",
+    "permissionRoles": ["admin", "employe"],
+    "submenu": [
+      {
+        "name": "Toate facturile",
+        "url": "/dashboard/invoices"
+      },
+      {
+        "name": "Factură nouă",
+        "url": "/dashboard/invoices/new"
+      },
+      {
+        "name": "Serii de factură",
+        "url": "/dashboard/invoices/series",
+        "permissionRoles": ["admin"]
+      },
+      {
+        "name": "Serie de factură nouă",
+        "url": "/dashboard/invoices/series/new",
+        "permissionRoles": ["admin"]
+      }
+    ]
+  }
+]

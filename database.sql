@@ -32,6 +32,7 @@ CREATE TABLE crm_companies (
     address VARCHAR(255),
     bank_name VARCHAR(255),
     bank_iban VARCHAR(255),
+    establishment_date DATE,
     owner UUID NOT NULL REFERENCES crm_users(id) ON DELETE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 )
@@ -66,17 +67,19 @@ CREATE TABLE crm_invoices_series (
 CREATE TABLE crm_invoices (
     id UUID NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
     company UUID NOT NULL REFERENCES crm_companies(id),
-    date_of_issue
-    currency VARCHAR(15) NOT NULL DEFAULT "RON",
-    vat_rate 
-    exchange_rate 
-    payment_term
+    client UUID NOT NULL REFERENCES crm_clients(id),
+    author UUID NOT NULL REFERENCES crm_users(id),
+    date_of_issue DATE NOT NULL,
+    currency VARCHAR(15) NOT NULL DEFAULT 'RON',
+    vat_rate INT NOT NULL DEFAULT 0,
+    exchange_rate NUMERIC(10,6),
+    payment_term DATE,
     series UUID NOT NULL REFERENCES crm_invoices_series(id),
     number VARCHAR(30) NOT NULL,
     products JSONB NOT NULL,
-    total_without_vat
-    vat_value
-    total
+    total_without_vat NUMERIC(10, 2) NOT NULL,
+    vat_value NUMERIC(10, 2) NOT NULL,
+    total NUMERIC(10, 2) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'draft',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 )
@@ -90,7 +93,8 @@ CREATE TABLE crm_recieps (
 -- Activity log
 CREATE TABLE crm_activity_log (
     id UUID NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
-    user UUID NOT NULL REFERENCES crm_users(id),
+    user_id UUID NOT NULL REFERENCES crm_users(id),
+    type VARCHAR(255) NOT NULL, 
     action VARCHAR(255) NOT NULL, -- Exemplu: 'Created invoice', 'Updated client'
     details TEXT,
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

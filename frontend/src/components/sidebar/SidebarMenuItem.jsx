@@ -1,11 +1,28 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
+import {
+  FaHouseChimney,
+  FaBriefcase,
+  FaUserTie,
+  FaGear,
+  FaFileInvoiceDollar,
+} from "react-icons/fa6";
 
-function SidebarMenuItem({ item, key }) {
+const icons = {
+  FaHouseChimney: FaHouseChimney,
+  FaBriefcase: FaBriefcase,
+  FaUserTie: FaUserTie,
+  FaFileInvoiceDollar: FaFileInvoiceDollar,
+  FaGear: FaGear,
+};
+
+function SidebarMenuItem({ item, session, key }) {
   const [submenuIsOpened, setSubmenuIsOpened] = useState(false);
   const [submenuHeight, setSubmenuHeight] = useState(0);
   const submenuRef = useRef(null);
   let location = useLocation();
+
+  const IconComponent = icons[item.icon];
 
   useEffect(() => {
     if (submenuIsOpened) {
@@ -24,7 +41,7 @@ function SidebarMenuItem({ item, key }) {
           }`}
           to={item.url}
         >
-          {item.icon}
+          {IconComponent && <IconComponent />}
           <span>{item.name}</span>
         </Link>
       </li>
@@ -37,7 +54,7 @@ function SidebarMenuItem({ item, key }) {
         type="button"
         onClick={() => setSubmenuIsOpened((prevState) => !prevState)}
       >
-        {item.icon}
+        {IconComponent && <IconComponent />}
         <span>{item.name}</span>
       </button>
       <div
@@ -48,18 +65,26 @@ function SidebarMenuItem({ item, key }) {
         ref={submenuRef}
       >
         <ul className="submenu-list">
-          {item.submenu.map((submenuItem, index) => (
-            <li className="submenu-list-item" key={index}>
-              <Link
-                className={`submenu-list-item-link ${
-                  location.pathname === submenuItem.url ? "is-active" : ""
-                }`}
-                to={submenuItem.url}
-              >
-                {submenuItem.name}
-              </Link>
-            </li>
-          ))}
+          {item.submenu
+            .filter((submenuItem) =>
+              submenuItem?.permissionRoles
+                ? submenuItem?.permissionRoles.includes(session.role)
+                  ? true
+                  : false
+                : true
+            )
+            .map((submenuItem, index) => (
+              <li className="submenu-list-item" key={index}>
+                <Link
+                  className={`submenu-list-item-link ${
+                    location.pathname === submenuItem.url ? "is-active" : ""
+                  }`}
+                  to={submenuItem.url}
+                >
+                  {submenuItem.name}
+                </Link>
+              </li>
+            ))}
         </ul>
       </div>
     </li>

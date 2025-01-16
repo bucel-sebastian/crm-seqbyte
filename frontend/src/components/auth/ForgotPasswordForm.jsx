@@ -7,7 +7,7 @@ import logoBlack from "../../assets/images/logo_black.svg";
 import logoWhite from "../../assets/images/logo_white.svg";
 import ThemeContext from "../../context/ThemeContext";
 
-function LoginForm({ nonce }) {
+function ForgotPasswordForm({ nonce }) {
   const { theme, toggleTheme } = useContext(ThemeContext);
 
   const navigate = useNavigate();
@@ -16,29 +16,27 @@ function LoginForm({ nonce }) {
   const [formIsLoading, setFormIsLoading] = useState(false);
   const [formInputs, setFormInputs] = useState({
     email: "",
-    password: "",
-    remember_me: false,
   });
+  const [tokenGenerated, setTokenGenerated] = useState(false);
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
 
     setFormInputs((prevState) => ({
       ...prevState,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
   };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setFormIsLoading(true);
 
     const formData = new FormData();
     formData.append("email", formInputs.email);
-    formData.append("password", formInputs.password);
-    formData.append("remember_me", formInputs.remember_me);
 
     const response = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/v1/auth/login`,
+      `${process.env.REACT_APP_BACKEND_URL}/api/v1/auth/forgot-password`,
       {
         method: "POST",
         headers: {
@@ -51,20 +49,20 @@ function LoginForm({ nonce }) {
       const body = await response.json();
 
       if (body.status === "success") {
-        const token = body.token;
-        if (token) {
-          login(token);
-          navigate("/dashboard");
-          toast.success("Autentificare reusita!");
-        } else {
-          toast.error("A aparut o problema, va rugam sa incercati mai tarziu!");
-        }
+        setTokenGenerated(true);
       } else {
         if (body.error === "User doesn't exist") {
           toast.error("Acest cont de utilizator nu exista");
         } else if (body.error === "User is not activated") {
           toast.error("Acest cont de utilizator nu este activat");
-        } else if (body.error === "Wrong password") {
+        } else if (
+          body.error ===
+          "There was a problem while we tried to generate the recover token"
+        ) {
+          toast.error("A aparut o problema in timp ce se genera tokenul");
+        } else if (
+          body.error === "A aparut o problema la trimiterea tokenului"
+        ) {
           toast.error("Parola este gresita");
         } else if (body.error === "Email and password are required") {
           toast.error("Adresa de email si parola sunt obligatorii");
@@ -88,50 +86,44 @@ function LoginForm({ nonce }) {
         className="auth-form-logo"
         src={theme === "light-mode" ? logoBlack : logoWhite}
       />
-      <form onSubmit={handleFormSubmit}>
-        <div className="auth-form-content">
-          <div className="auth-form-input-container">
-            <label>Adresa de email</label>
-            <input
-              type="email"
-              name="email"
-              value={formInputs.email}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="auth-form-input-container">
-            <label>Parola</label>
-            <input
-              type="password"
-              name="password"
-              value={formInputs.password}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="auth-form-checkbox-container">
-            <label>
-              <input
-                type="checkbox"
-                name="remember_me"
-                onChange={handleInputChange}
-              />{" "}
-              Tine-mă minte
-            </label>
-          </div>
-          <div className="auth-form-submit-container">
-            <button disabled={formIsLoading}>
-              {formIsLoading ? <>Se încarcă</> : <>Autentificare</>}
-            </button>
-          </div>
-          <Link to="/forgot-password" className="auth-page-link">
-            Am uitat parola
+      {tokenGenerated ? (
+        <>
+          <h3 style={{ textAlign: "center" }}>
+            A fost trimis pe mailul introdus un link pentru resetarea parolei.
+          </h3>
+          <Link
+            to="/login"
+            className="auth-page-link"
+            style={{ marginTop: "15px" }}
+          >
+            Inapoi la autentificare
           </Link>
-        </div>
-      </form>
+        </>
+      ) : (
+        <>
+          <form onSubmit={handleFormSubmit}>
+            <div className="auth-form-content">
+              <div className="auth-form-input-container">
+                <label>Adresa de email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formInputs.email}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="auth-form-submit-container">
+                <button disabled={formIsLoading}>
+                  {formIsLoading ? <>Se încarcă</> : <>Trimite</>}
+                </button>
+              </div>
+            </div>
+          </form>
+        </>
+      )}
     </div>
   );
 }
 
-export default LoginForm;
+export default ForgotPasswordForm;
