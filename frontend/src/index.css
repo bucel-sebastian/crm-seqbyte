@@ -273,23 +273,29 @@ body {
   width: 400px;
 }
 
-.auth-form-content {
+.auth-form-content,
+.dashboard-form-content {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.auth-form-input-container {
+.auth-form-input-container,
+.dashboard-form-input-container {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
 
-.auth-form-input-container label {
+.auth-form-input-container label,
+.dashboard-form-input-container label {
   font-size: 1rem;
 }
-.auth-form-input-container input {
+.auth-form-input-container input,
+.dashboard-form-input-container input {
+  color: #1a1a1a;
+  background: #fafafa;
   padding: 7px 7px;
   font-size: 0.9rem;
   border-radius: 5px;
@@ -297,7 +303,8 @@ body {
   border: 1px solid var(--foreground-primary);
   transition: 0.3s ease;
 }
-.auth-form-input-container input:focus {
+.auth-form-input-container input:focus,
+.dashboard-form-input-container input:focus {
   border: 1px solid var(--accent-blue);
 }
 
@@ -305,11 +312,13 @@ body {
   width: 100%;
 }
 
-.auth-form-submit-container {
+.auth-form-submit-container,
+.dashboard-form-submit-container {
   width: 100%;
 }
 
-.auth-form-submit-container button {
+.auth-form-submit-container button,
+.dashboard-form-submit-container button {
   width: 100%;
   padding: 9px 5px;
   font-size: 1rem;
@@ -321,11 +330,13 @@ body {
   cursor: pointer;
 }
 
-.auth-form-submit-container button:hover {
+.auth-form-submit-container button:hover,
+.dashboard-form-submit-container button:hover {
   background: var(--accent-blue-hover);
 }
 
-.auth-form-submit-container button:disabled {
+.auth-form-submit-container button:disabled,
+.dashboard-form-submit-container button:disabled {
   background: #303030;
 }
 
@@ -355,4 +366,146 @@ body {
 
 .header-logo {
   height: 30px;
+}
+
+.dashboard-form-inputs-row {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.select-input-container {
+  position: relative;
+  background: #fafafa;
+  padding: 7px 7px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  outline: none;
+  color: #1a1a1a;
+  border: 1px solid var(--foreground-primary);
+  transition: border 0.3s ease;
+}
+
+.select-input-container.is-opened {
+  border: 1px solid var(--accent-blue);
+  border-radius: 5px 5px 0 0;
+}
+
+.select-input-options-container {
+  border-bottom: 1px solid var(--accent-blue);
+  border-left: 1px solid var(--accent-blue);
+  border-right: 1px solid var(--accent-blue);
+  position: absolute;
+  top: 100%;
+  left: -1px;
+  width: calc(100% + 2px);
+  background: #fafafa;
+  border-radius: 0px 0px 5px 5px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.select-input-options-list {
+  max-height: 200px;
+  height: max-content;
+  overflow: auto;
+}
+
+.select-input {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 5px;
+  font-size: 1rem;
+  align-items: center;
+}
+
+.select-input-option-item {
+  display: block;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  font-family: "Roboto";
+}
+.select-input-option-item:hover {
+  background: var(--accent-blue);
+}
+
+.select-input-search-container {
+  display: block;
+  position: relative;
+  width: 100%;
+  padding: 4px 10px;
+}
+
+.select-input-search-container input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #1a1a1a55;
+  border-radius: 3px;
+  outline: none;
+  font-size: 1rem;
+  font-family: "Roboto";
+}
+
+.select-input-selected-value {
+  line-height: 1rem;
+  font-size: 1rem;
+  font-family: "Roboto";
+}
+
+.select-input-selected-value-multi-item {
+  position: relative;
+  padding: 0px 5px;
+  margin-right: 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: max-content;
+  gap: 5px;
+  z-index: 1;
+}
+
+.select-input-selected-value-multi-item::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: 0;
+  width: 100%;
+  height: calc(100% + 6px);
+  background: #e0e0e0;
+  border-radius: 3px;
+  z-index: -1;
+}
+
+.select-input-value-container {
+  display: flex;
+}
+.select-input-value-container svg {
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  align-content: center;
+  text-align: center;
+}
+
+.dashboard-table th:first-of-type,
+.dashboard-table td:first-of-type {
+  align-content: left;
+  text-align: left;
+}
+
+.dashboard-table th:last-of-type,
+.dashboard-table td:last-of-type {
+  align-content: right;
+  text-align: right;
 }

@@ -32,7 +32,7 @@ const resetPasswordHandler = async (req, res) => {
     );
 
     if (updateResponse.length === 1) {
-      await logger.insert("info", tokenData.user_id, "Password reset");
+      await logger.insert("success", tokenData.user_id, "Password reset");
       return res.json({ status: "success" });
     }
     return res.status(200).json({

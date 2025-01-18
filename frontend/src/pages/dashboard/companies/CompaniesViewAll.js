@@ -3,6 +3,8 @@ import { Link } from "react-router";
 import { useAuth } from "../../../context/AuthContext";
 import useNonce from "../../../hooks/useNonce";
 
+import countriesJson from "../../../utils/countries.json";
+
 function CompaniesViewAll() {
   const nonce = useNonce();
 
@@ -12,7 +14,7 @@ function CompaniesViewAll() {
 
   const getTableItems = async () => {
     const response = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/v1/companies`,
+      `${process.env.REACT_APP_BACKEND_URL}/api/v1/companies/list`,
       {
         headers: {
           "x-api-nonce": nonce,
@@ -20,7 +22,9 @@ function CompaniesViewAll() {
       }
     );
     if (response.ok) {
-      const body = response.json();
+      const body = await response.json();
+      console.log(body);
+      setTableItems(body);
     }
     setDataIsLoading(false);
   };
@@ -55,7 +59,7 @@ function CompaniesViewAll() {
               </>
             ) : (
               <>
-                <table>
+                <table className="dashboard-table">
                   <thead>
                     <tr>
                       <th>Nr.</th>
@@ -70,11 +74,17 @@ function CompaniesViewAll() {
                   <tbody>
                     {tableItems.map((item, index) => (
                       <tr key={item.id}>
-                        <td>{index}</td>
+                        <td>{index + 1}</td>
                         <td>{item.name}</td>
                         <td>{item.vat}</td>
                         <td>{item.no_reg_com}</td>
-                        <td>{item.country}</td>
+                        <td>
+                          {
+                            countriesJson.find(
+                              (country) => country.alpha2 === item.country
+                            ).name
+                          }
+                        </td>
                         <td>{item.owner}</td>
                         <td>
                           <Link

@@ -16,7 +16,7 @@ const icons = {
   FaGear: FaGear,
 };
 
-function SidebarMenuItem({ item, session, key }) {
+function SidebarMenuItem({ item, session }) {
   const [submenuIsOpened, setSubmenuIsOpened] = useState(false);
   const [submenuHeight, setSubmenuHeight] = useState(0);
   const submenuRef = useRef(null);

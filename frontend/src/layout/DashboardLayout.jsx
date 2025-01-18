@@ -5,6 +5,8 @@ import DashboardSidebar from "../components/dashboad/layout/DashboardSidebar";
 
 import DashboardLayoutContext from "../context/DashboardLayoutContext";
 
+import { ToastContainer, Bounce } from "react-toastify";
+
 function DashboardLayout() {
   const { sidebarIsOpened } = useContext(DashboardLayoutContext);
 
@@ -19,6 +21,19 @@ function DashboardLayout() {
         >
           <div className="dashboard-main-content">
             <Outlet />
+            <ToastContainer
+              position="bottom-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick={false}
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="colored"
+              transition={Bounce}
+            />
           </div>
         </main>
       </div>

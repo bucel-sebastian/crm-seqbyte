@@ -8,26 +8,22 @@ function ProtectedRoute({ children }) {
   const { session, loading } = useAuth();
   const location = useLocation();
 
-  console.log("Session", session, location);
-
   const hasPermission = (role) => {
     for (const item of menuItems) {
       if (item.url === location.pathname) {
         if (item?.permissionRoles) {
-          console.log("intra", item?.permissionRoles);
           if (!item?.permissionRoles?.includes(role)) {
-            console.log("aici", item?.permissionRoles);
             return false;
           }
         }
       }
-
       if (item.submenu) {
         for (const subItem of item.submenu) {
           if (subItem.url === location.pathname) {
-            if (!subItem?.permissionRoles?.includes(role)) {
-              console.log("aici acolo");
-              return false;
+            if (subItem?.permissionRoles) {
+              if (!subItem?.permissionRoles?.includes(role)) {
+                return false;
+              }
             }
           }
         }
