@@ -6,6 +6,7 @@ const newCompanyHandler = async (req, res) => {
     user_id,
     name,
     vat,
+    tva_payer,
     no_reg_com,
     country,
     county,
@@ -17,26 +18,13 @@ const newCompanyHandler = async (req, res) => {
     owner,
   } = req.body;
 
-  console.log({
-    user_id,
-    name,
-    vat,
-    no_reg_com,
-    country,
-    county,
-    city,
-    address,
-    bank_name,
-    bank_iban,
-    establishment_date,
-    owner,
-  });
+  const vatFull = `${tva_payer === "yes" ? "RO" : ""}${vat}`;
 
   const dbSearchResponse = await db.select("crm_companies", [
-    { column: "vat", operator: "=", value: vat, next: null },
+    { column: "vat", operator: "=", value: vatFull, next: null },
   ]);
 
-  if (dbSearchResponse === 1) {
+  if (dbSearchResponse.length > 0) {
     return res
       .status(200)
       .json({ status: "fail", error: "Company already exists" });
@@ -46,7 +34,7 @@ const newCompanyHandler = async (req, res) => {
   try {
     dbInsertResponse = await db.insert("crm_companies", {
       name: name,
-      vat: vat,
+      vat: vatFull,
       no_reg_com: no_reg_com,
       country: country,
       county: county,
@@ -64,7 +52,7 @@ const newCompanyHandler = async (req, res) => {
       `Error when tried to insert new company - ${error}`,
       JSON.stringify({
         name: name,
-        vat: vat,
+        vat: vatFull,
         no_reg_com: no_reg_com,
         country: country,
         county: county,

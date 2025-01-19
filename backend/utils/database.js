@@ -132,6 +132,75 @@ class Database {
     return this.query(queryString, params);
   }
 
+  async selectPaginate(
+    table,
+    page = 1,
+    rowsPerPage = 10,
+    where = [],
+    order = null
+  ) {
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+      throw new Error("Invalid table name");
+    }
+
+    let whereClause = "";
+    const params = [];
+
+    if (where.length > 0) {
+      const conditions = where.map((condition, index) => {
+        // Validate column name
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(condition.column)) {
+          throw new Error(`Invalid column name: ${condition.column}`);
+        }
+
+        // Validate operator
+        const validOperators = ["=", "!=", ">", "<", ">=", "<=", "LIKE", "IN"];
+        if (!validOperators.includes(condition.operator.toUpperCase())) {
+          throw new Error(`Invalid operator: ${condition.operator}`);
+        }
+
+        // Validate next (logical operator)
+        const validNextOperators = ["AND", "OR", null];
+        if (
+          condition.next &&
+          !validNextOperators.includes(condition.next.toUpperCase())
+        ) {
+          throw new Error(`Invalid logical operator: ${condition.next}`);
+        }
+
+        // Add parameter and build condition
+        params.push(condition.value);
+        return `${condition.column} ${condition.operator} $${params.length}${
+          condition.next ? ` ${condition.next}` : ""
+        }`;
+      });
+
+      whereClause = "WHERE " + conditions.join(" ");
+    }
+
+    let orderClause = "";
+    if (order !== null) {
+      // Validate order column and direction
+      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(order.column)) {
+        throw new Error(`Invalid order column: ${order.column}`);
+      }
+
+      const validDirections = ["ASC", "DESC"];
+      if (!validDirections.includes(order.direction.toUpperCase())) {
+        throw new Error(`Invalid order direction: ${order.direction}`);
+      }
+
+      orderClause = `ORDER BY ${order.column} ${order.direction.toUpperCase()}`;
+    }
+
+    const offset = (page - 1) * rowsPerPage;
+
+    const queryString =
+      `SELECT * FROM ${table} ${whereClause} ${orderClause} LIMIT ${rowsPerPage} OFFSET ${offset}`.trim();
+
+    return this.query(queryString, params);
+  }
+
   async update(table, updates, where = []) {
     if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
       throw new Error("Invalid table name");

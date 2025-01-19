@@ -10,26 +10,50 @@ import { FaFileCircleCheck } from "react-icons/fa6";
 import Tooltip from "@mui/material/Tooltip";
 import { translateDiacritics } from "../../utils/translateDiacritics";
 
-function NewCompanyForm({ nonce, onSuccess }) {
+const formatDate = (isoString) => {
+  const date = new Date(isoString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const areFormInputsDifferent = (formInputs, initialData) => {
+  for (const key in formInputs) {
+    if (formInputs[key] !== initialData[key]) {
+      return true;
+    }
+  }
+  return false;
+};
+
+function EditCompanyForm({ initialData, nonce }) {
   const { session } = useAuth();
-  console.log(session);
+  console.log(initialData);
   const [formIsLoading, setFormIsLoading] = useState(false);
+  const [initialDataChanged, setInitialDataChanged] = useState(false);
   const [formInputs, setFormInputs] = useState({
-    name: "",
-    vat: "",
-    tva_payer: "no",
-    no_reg_com: "",
-    country: "",
-    county: "",
-    city: "",
-    address: "",
-    bank_name: "",
-    bank_iban: "",
-    establishment_date: "",
-    owner: "",
+    name: initialData.name,
+    vat: initialData.vat.startsWith("RO")
+      ? initialData.vat.slice(2)
+      : initialData.vat,
+    tva_payer: initialData.vat.startsWith("RO") ? "yes" : "no",
+    no_reg_com: initialData.no_reg_com,
+    country: initialData.country,
+    county: initialData.county,
+    city: initialData.city,
+    address: initialData.address,
+    bank_name: initialData.bank_name,
+    bank_iban: initialData.bank_iban,
+    establishment_date: formatDate(initialData.establishment_date),
+    owner: initialData.owner,
   });
 
-  const [showDetailsApiRequest, setShowDetailsApiRequest] = useState(false);
+  useEffect(() => {
+    setInitialDataChanged(areFormInputsDifferent(formInputs, initialData));
+  }, [formInputs]);
+
+  const [showDetailsApiRequest, setShowDetailsApiRequest] = useState(true);
 
   const requestCompanyData = async (e) => {
     e.preventDefault();
@@ -169,12 +193,13 @@ function NewCompanyForm({ nonce, onSuccess }) {
 
     const formData = new FormData();
     formData.append("user_id", session.id);
+    formData.append("id", initialData.id);
     Object.entries(formInputs).forEach(([key, value]) => {
       formData.append(key, value);
     });
 
     const response = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/v1/companies/new`,
+      `${process.env.REACT_APP_BACKEND_URL}/api/v1/companies/edit`,
       {
         method: "POST",
         headers: {
@@ -185,12 +210,12 @@ function NewCompanyForm({ nonce, onSuccess }) {
     );
     if (response.ok) {
       const body = await response.json();
-
+      console.log(body);
       if (body.status === "success") {
-        onSuccess(body.id);
+        toast.success("Compania a fost modificata cu success!");
       } else {
         if (
-          body.error === "There was a problem when we tried to insert company"
+          body.error === "There was a problem when we tried to update company"
         ) {
           toast.error("A aparut o problema, va rugam sa incercati mai tarziu!");
         } else if (body.error === "Company already exists") {
@@ -410,8 +435,19 @@ function NewCompanyForm({ nonce, onSuccess }) {
           </div>
 
           <div className="dashboard-form-submit-container">
-            <button disabled={formIsLoading}>
-              {formIsLoading ? <>Se încarcă</> : <>Adauga</>}
+            <button
+              disabled={() => {
+                if (initialDataChanged) {
+                  return formIsLoading;
+                }
+                return true;
+              }}
+            >
+              {initialDataChanged ? (
+                <>{formIsLoading ? <>Se încarcă</> : <>Salveaza</>}</>
+              ) : (
+                <>Nu exista modificari</>
+              )}
             </button>
           </div>
         </div>
@@ -420,4 +456,4 @@ function NewCompanyForm({ nonce, onSuccess }) {
   );
 }
 
-export default NewCompanyForm;
+export default EditCompanyForm;

@@ -11,7 +11,7 @@ function CompaniesNew() {
   return (
     <div>
       <div className="dashboard-page-title">
-        <h1>Campanie nouă</h1>{" "}
+        <h1>Companie nouă</h1>{" "}
         {companyCreated === false && (
           <Link to="/dashboard/companies">Renunță</Link>
         )}

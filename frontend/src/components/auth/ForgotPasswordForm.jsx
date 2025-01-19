@@ -101,6 +101,10 @@ function ForgotPasswordForm({ nonce }) {
         </>
       ) : (
         <>
+          <h3 style={{ textAlign: "center", marginBottom: "10px" }}>
+            Introdu adresa de email pentru a primi tokenul de resetare a
+            parolei.
+          </h3>
           <form onSubmit={handleFormSubmit}>
             <div className="auth-form-content">
               <div className="auth-form-input-container">
@@ -120,6 +124,13 @@ function ForgotPasswordForm({ nonce }) {
               </div>
             </div>
           </form>
+          <Link
+            to="/login"
+            className="auth-page-link"
+            style={{ marginTop: "15px" }}
+          >
+            Inapoi la autentificare
+          </Link>
         </>
       )}
     </div>

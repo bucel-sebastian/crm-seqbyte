@@ -10,9 +10,8 @@ import { FaFileCircleCheck } from "react-icons/fa6";
 import Tooltip from "@mui/material/Tooltip";
 import { translateDiacritics } from "../../utils/translateDiacritics";
 
-function NewCompanyForm({ nonce, onSuccess }) {
+function NewClientForm({ nonce, onSuccess }) {
   const { session } = useAuth();
-  console.log(session);
   const [formIsLoading, setFormIsLoading] = useState(false);
   const [formInputs, setFormInputs] = useState({
     name: "",
@@ -26,7 +25,6 @@ function NewCompanyForm({ nonce, onSuccess }) {
     bank_name: "",
     bank_iban: "",
     establishment_date: "",
-    owner: "",
   });
 
   const [showDetailsApiRequest, setShowDetailsApiRequest] = useState(false);
@@ -45,7 +43,7 @@ function NewCompanyForm({ nonce, onSuccess }) {
       );
       if (response.ok) {
         const body = await response.json();
-        console.log(body);
+
         if (body.status === "success") {
           const adresa = body?.data?.adresa.split(", ");
           let county, city, adresaFull;
@@ -112,29 +110,6 @@ function NewCompanyForm({ nonce, onSuccess }) {
       }
     }
   };
-
-  const [ownersList, setOwnersList] = useState([]);
-
-  const getOwnersList = async () => {
-    const response = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/v1/owners/all`,
-      {
-        headers: {
-          "x-api-nonce": nonce,
-        },
-      }
-    );
-    if (response.ok) {
-      const body = await response.json();
-
-      setOwnersList(body.data);
-    }
-  };
-
-  useEffect(() => {
-    getOwnersList();
-  }, []);
-
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -159,9 +134,7 @@ function NewCompanyForm({ nonce, onSuccess }) {
       formInputs.country === "" ||
       formInputs.county === "" ||
       formInputs.city === "" ||
-      formInputs.address === "" ||
-      formInputs.establishment_date === "" ||
-      formInputs.owner === ""
+      formInputs.address === ""
     ) {
       toast.error("Va rugam sa completati toate datele obligatorii (*)");
       return;
@@ -174,7 +147,7 @@ function NewCompanyForm({ nonce, onSuccess }) {
     });
 
     const response = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/v1/companies/new`,
+      `${process.env.REACT_APP_BACKEND_URL}/api/v1/clients/new`,
       {
         method: "POST",
         headers: {
@@ -190,11 +163,11 @@ function NewCompanyForm({ nonce, onSuccess }) {
         onSuccess(body.id);
       } else {
         if (
-          body.error === "There was a problem when we tried to insert company"
+          body.error === "There was a problem when we tried to insert client"
         ) {
           toast.error("A aparut o problema, va rugam sa incercati mai tarziu!");
-        } else if (body.error === "Company already exists") {
-          toast.error("Deja exista o companie cu acest CUI");
+        } else if (body.error === "Client already exists") {
+          toast.error("Deja exista un client cu acest CUI");
         }
       }
     } else {
@@ -253,19 +226,6 @@ function NewCompanyForm({ nonce, onSuccess }) {
                 required
               />
             </div>
-
-            <div className="dashboard-form-input-container">
-              <label>Data infintari *</label>
-              <input
-                type="date"
-                name="establishment_date"
-                value={formInputs.establishment_date}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </div>
-          <div className="dashboard-form-inputs-row">
             <div className="dashboard-form-input-container">
               <label>Platitor de TVA *</label>
               <SelectInput
@@ -282,19 +242,6 @@ function NewCompanyForm({ nonce, onSuccess }) {
                 value={formInputs.tva_payer}
                 name="tva_payer"
                 onChange={handleInputChange}
-              />
-            </div>
-            <div className="dashboard-form-input-container">
-              <label>Administrator *</label>
-              <SelectInput
-                options={ownersList.map((owner) => ({
-                  value: owner.id,
-                  label: owner.name,
-                }))}
-                value={formInputs.owner}
-                name="owner"
-                onChange={handleInputChange}
-                isSearchable={true}
               />
             </div>
           </div>
@@ -420,4 +367,4 @@ function NewCompanyForm({ nonce, onSuccess }) {
   );
 }
 
-export default NewCompanyForm;
+export default NewClientForm;

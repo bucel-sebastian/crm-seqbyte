@@ -1,0 +1,19 @@
+.dashboard-table .MuiTableCell-root {
+  font-family: "Roboto";
+  color: var(--foreground-primary);
+  text-align: center;
+  min-width: 100px;
+}
+
+.dashboard-table .MuiTableCell-root:first-of-type {
+  text-align: left;
+}
+.dashboard-table .MuiTableCell-root:last-of-type {
+  text-align: right;
+}
+
+.dashboard-table-pagination .MuiToolbar-root,
+.dashboard-table-pagination .MuiSvgIcon-root {
+  font-family: "Roboto";
+  color: var(--foreground-primary);
+}

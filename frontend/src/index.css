@@ -236,8 +236,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 100px;
   font-size: 18px;
   line-height: 18px;
@@ -372,6 +372,7 @@ body {
   display: flex;
   flex-direction: row;
   gap: 20px;
+  align-items: baseline;
 }
 
 .select-input-container {
@@ -487,7 +488,7 @@ body {
   cursor: pointer;
 }
 
-.dashboard-table {
+/* .dashboard-table {
   width: 100%;
   border-collapse: collapse;
 }
@@ -508,4 +509,110 @@ body {
 .dashboard-table td:last-of-type {
   align-content: right;
   text-align: right;
+} */
+
+.dashboard-header-user-menu {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+}
+
+.dashboad-header-user-details {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  align-content: center;
+}
+
+.dashboad-header-user-details-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.dashboad-header-user-details-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.dashboad-header-user-details-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+.dashboad-header-user-details-name span {
+  font-size: 12px;
+}
+
+.dashboard-header-user-logout-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 100px;
+  font-size: 18px;
+  line-height: 18px;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  border: none;
+  outline: none;
+  color: var(--foreground-primary);
+  background: var(--background-secondary);
+}
+
+.dashboard-table-actions-container {
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+  justify-content: flex-end;
+}
+
+.dashboard-table-action-button {
+  color: #fafafa;
+  border: 1px solid var(--foreground-secondary);
+  width: 25px;
+  height: 25px;
+  border-radius: 4px;
+  background: var(--accent-blue);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.dashboard-autocomplete-button {
+  pointer-events: none;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 100px;
+  font-size: 14px;
+  line-height: 18px;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  border: none;
+  outline: none;
+  color: var(--foreground-primary);
+  background: var(--accent-blue);
+  margin-left: 5px;
+  opacity: 0;
+  transform: translateX(30px);
+  transition: 0.2s ease;
+}
+
+.dashboard-autocomplete-button.is-visible {
+  pointer-events: all;
+  opacity: 1;
+  transform: translateX(0px);
+}
+
+.dashboard-form-container {
+  padding-top: 15px;
 }
