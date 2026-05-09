@@ -1,0 +1,200 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Better Auth Models
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  emailVerified Boolean         @default(false)
+  image         String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  role          String          @default("user")
+  
+  // Relations
+  sessions      Session[]
+  accounts      Account[]
+  verifications Verification[]
+  companies     Company[]
+  activityLogs  ActivityLog[]
+  passwordResetTokens PasswordResetToken[]
+  
+  @@map("users")
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  expiresAt DateTime
+  token     String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("sessions")
+}
+
+model Account {
+  id                 String    @id @default(cuid())
+  accountId          String
+  providerId         String
+  userId             String
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken        String?   @db.Text
+  refreshToken       String?   @db.Text
+  expiresAt          DateTime?
+  password           String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  
+  @@unique([userId, providerId, accountId])
+  @@map("accounts")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  userId     String?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([identifier, value])
+  @@map("verifications")
+}
+
+// CRM Models
+model Company {
+  id                 String    @id @default(cuid())
+  name               String
+  vat                String    @unique
+  registrationNumber String
+  country            String
+  county             String
+  city               String
+  address            String?
+  bankName           String?
+  bankIban           String?
+  establishmentDate  DateTime?
+  ownerId            String
+  owner              User      @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  
+  // Relations
+  invoices           Invoice[]
+  invoiceSeries      InvoiceSeries[]
+  
+  @@index([ownerId])
+  @@map("companies")
+}
+
+model Client {
+  id                 String    @id @default(cuid())
+  name               String
+  vat                String    @unique
+  registrationNumber String
+  country            String
+  county             String
+  city               String
+  address            String?
+  bankName           String?
+  bankIban           String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  
+  // Relations
+  invoices           Invoice[]
+  
+  @@map("clients")
+}
+
+model InvoiceSeries {
+  id             String    @id @default(cuid())
+  companyId      String
+  company        Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  prefix         String
+  startingNumber Int       @default(1)
+  currentNumber  Int       @default(1)
+  description    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  // Relations
+  invoices       Invoice[]
+  
+  @@unique([companyId, prefix])
+  @@index([companyId])
+  @@map("invoice_series")
+}
+
+model Invoice {
+  id             String    @id @default(cuid())
+  companyId      String
+  company        Company   @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  clientId       String
+  client         Client    @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  seriesId       String
+  series         InvoiceSeries @relation(fields: [seriesId], references: [id])
+  invoiceNumber  String
+  dateOfIssue    DateTime
+  dueDate        DateTime?
+  currency       String    @default("RON")
+  vatRate        Int       @default(0)
+  exchangeRate   Decimal?  @db.Decimal(10, 6)
+  products       Json      // Array of {name, quantity, unitPrice, total}
+  totalWithoutVat Decimal  @db.Decimal(10, 2)
+  vatValue       Decimal   @db.Decimal(10, 2)
+  total          Decimal   @db.Decimal(10, 2)
+  status         String    @default("draft") // draft, issued, paid
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  @@unique([seriesId, invoiceNumber])
+  @@index([companyId])
+  @@index([clientId])
+  @@index([status])
+  @@map("invoices")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique
+  expiresAt DateTime
+  used      Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model ActivityLog {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String    // USER_ACTION, SYSTEM_EVENT, etc
+  action    String    // Created company, Updated invoice, etc
+  details   Json?     // Additional context
+  metadata  Json?     // IP, User Agent, etc
+  createdAt DateTime  @default(now())
+  
+  @@index([userId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
