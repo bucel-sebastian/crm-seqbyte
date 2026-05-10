@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "tsx prisma/seed.ts",
-    "prisma": "prisma"
+    "prisma": "node scripts/prisma-with-env.mjs"
   },
   "dependencies": {
     "@prisma/client": "^5.15.0",

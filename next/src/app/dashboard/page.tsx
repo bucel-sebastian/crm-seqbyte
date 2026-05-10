@@ -1,88 +1,34 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
-import { getSessionAction } from "@/server/actions/auth";
-
-export default function DashboardPage() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [session, setSession] = useState<any>(null);
-
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const data = await getSessionAction();
-        if (!data?.user) {
-          router.push("/login");
-          return;
-        }
-        setSession(data);
-      } catch {
-        router.push("/login");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkSession();
-  }, [router]);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-      </div>
-    );
-  }
-
+export default function Page() {
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-4xl font-bold text-white">Welcome back, {session?.user?.name}</h1>
-        <p className="text-slate-400 mt-2">Here's your CRM dashboard</p>
+    <div className="space-y-6">
+      <div className="rounded-3xl border bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-6 text-white shadow-sm">
+        <div className="max-w-3xl space-y-4">
+          <p className="text-sm uppercase tracking-[0.3em] text-slate-400">CRM dashboard</p>
+          <h1 className="text-3xl font-semibold tracking-tight md:text-5xl">
+            Keep clients, companies, and invoices in one place.
+          </h1>
+          <p className="max-w-2xl text-sm text-slate-300 md:text-base">
+            Use the dashboard to jump straight into the main workflows, check current volume, and create new records without leaving the shell.
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-slate-800 border-slate-700">
-          <CardHeader>
-            <CardTitle className="text-blue-400">Companies</CardTitle>
-            <CardDescription>Manage your companies</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className="w-full bg-blue-600 hover:bg-blue-700">
-              <Link href="/dashboard/companies">Go to Companies</Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-slate-800 border-slate-700">
-          <CardHeader>
-            <CardTitle className="text-green-400">Clients</CardTitle>
-            <CardDescription>Manage your clients</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className="w-full bg-green-600 hover:bg-green-700">
-              <Link href="/dashboard/clients">Go to Clients</Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-slate-800 border-slate-700">
-          <CardHeader>
-            <CardTitle className="text-purple-400">Invoices</CardTitle>
-            <CardDescription>Manage your invoices</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className="w-full bg-purple-600 hover:bg-purple-700">
-              <Link href="/dashboard/invoices">Go to Invoices</Link>
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-2xl border bg-card p-5 shadow-sm">
+          <p className="text-sm text-muted-foreground">Clients</p>
+          <p className="mt-2 text-3xl font-semibold">Fast lookup</p>
+          <p className="mt-2 text-sm text-muted-foreground">Review client records, open details, or add a new one.</p>
+        </div>
+        <div className="rounded-2xl border bg-card p-5 shadow-sm">
+          <p className="text-sm text-muted-foreground">Companies</p>
+          <p className="mt-2 text-3xl font-semibold">Source of truth</p>
+          <p className="mt-2 text-sm text-muted-foreground">Keep billing entities and company data organized.</p>
+        </div>
+        <div className="rounded-2xl border bg-card p-5 shadow-sm">
+          <p className="text-sm text-muted-foreground">Billing</p>
+          <p className="mt-2 text-3xl font-semibold">Invoice flow</p>
+          <p className="mt-2 text-sm text-muted-foreground">Create invoices and numbering series from one place.</p>
+        </div>
       </div>
     </div>
   );

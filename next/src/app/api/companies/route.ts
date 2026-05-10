@@ -1,12 +1,11 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { companyService } from "@/server/services/company";
 import { activityService } from "@/server/services/activity";
 import { createCompanySchema } from "@/lib/validators";
+import { getSessionAction } from "@/server/actions/auth";
 
 export async function GET(request: Request) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getSessionAction();
     if (!session) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -17,9 +16,19 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get("page") || "1");
     const pageSize = parseInt(searchParams.get("pageSize") || "10");
 
-    const result = await companyService.listByOwner(session.user.id, page, pageSize);
+    const result = await companyService.listByOwner(session.user.userId, page, pageSize);
 
-    return new Response(JSON.stringify(result), { status: 200 });
+    return new Response(
+      JSON.stringify({
+        companies: result.data,
+        pagination: {
+          total: result.total,
+          page: result.page,
+          pageSize: result.pageSize,
+        },
+      }),
+      { status: 200 }
+    );
   } catch (error) {
     console.error("GET /api/companies error:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
@@ -30,7 +39,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getSessionAction();
     if (!session) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -52,12 +61,12 @@ export async function POST(request: Request) {
 
     const company = await companyService.create({
       ...validation.data,
-      ownerId: session.user.id,
+      ownerId: session.user.userId,
     });
 
     // Log activity
     await activityService.log({
-      userId: session.user.id,
+      userId: session.user.userId,
       type: "COMPANY_ACTION",
       action: "Created company",
       details: { companyId: company.id, name: company.name },

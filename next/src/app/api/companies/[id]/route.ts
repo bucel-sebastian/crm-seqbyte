@@ -1,35 +1,35 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { companyService } from "@/server/services/company";
 import { activityService } from "@/server/services/activity";
+import { getSessionAction } from "@/server/actions/auth";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const { id } = await params;
+    const session = await getSessionAction();
     if (!session) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
       });
     }
 
-    const company = await companyService.getById(params.id);
-    if (!company || company.ownerId !== session.user.id) {
+    const company = await companyService.getById(id);
+    if (!company || company.ownerId !== session.user.userId) {
       return new Response(JSON.stringify({ error: "Not found" }), {
         status: 404,
       });
     }
 
-    await companyService.delete(params.id);
+    await companyService.delete(id);
 
     // Log activity
     await activityService.log({
-      userId: session.user.id,
+      userId: session.user.userId,
       type: "COMPANY_ACTION",
       action: "Deleted company",
-      details: { companyId: params.id, name: company.name },
+      details: { companyId: id, name: company.name },
     });
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
@@ -43,18 +43,19 @@ export async function DELETE(
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const { id } = await params;
+    const session = await getSessionAction();
     if (!session) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
       });
     }
 
-    const company = await companyService.getById(params.id);
-    if (!company || company.ownerId !== session.user.id) {
+    const company = await companyService.getById(id);
+    if (!company || company.ownerId !== session.user.userId) {
       return new Response(JSON.stringify({ error: "Not found" }), {
         status: 404,
       });

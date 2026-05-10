@@ -1,0 +1,98 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Calibri;}}
+\fs24
+\b CRM System Project Migration to Next.js\b0\par
+Seminar Documentation\par
+\par
+\b Project Overview\b0\par
+This document describes the migration of an existing CRM system from a traditional Express and React architecture to a modern Next.js-based web application. The project keeps the existing business domain, including companies, clients, invoices, invoice series, and activity logging, while improving maintainability, security, and developer experience.\par
+\par
+\b 1. Analysis of Software Requirements\b0\par
+The project was developed to satisfy the following seminar requirements:\par
+1. Analysis of software requirements.\par
+2. Designing the database associated with a process fulfilling security requirements.\par
+3. Design of system classes.\par
+4. Implementation of the software system.\par
+5. System testing.\par
+6. Writing the documentation.\par
+\par
+The original CRM application already provided the core business workflows, so the migration focused on preserving functionality while modernizing the technical stack. The main functional areas are authentication, company management, client management, invoice management, invoice series management, and audit logging.\par
+\par
+\b Screenshot Placeholder 1:\b0 Insert a screenshot of the original system analysis or the requirements list here.\par
+\par
+\b 2. Database Design and Security\b0\par
+The system uses PostgreSQL as the database engine and Prisma as the ORM. The schema was redesigned to support the CRM domain with relational integrity and security-oriented constraints. The main entities are:\par
+- User\par
+- Session\par
+- Account\par
+- Verification\par
+- Company\par
+- Client\par
+- InvoiceSeries\par
+- Invoice\par
+- PasswordResetToken\par
+- ActivityLog\par
+\par
+Security-related design decisions include unique constraints for VAT numbers, foreign keys for ownership and relationships, indexed columns for common queries, and controlled deletion behavior. Prisma is used to prevent SQL injection by avoiding manual string concatenation in queries.\par
+\par
+\b Screenshot Placeholder 2:\b0 Insert a screenshot of the Prisma schema or database diagram here.\par
+\par
+\b 3. Design of System Classes\b0\par
+The application follows a service-based structure that fulfills the "system classes" requirement. The main service classes are:\par
+- CompanyService\par
+- ClientService\par
+- InvoiceSeriesService\par
+- InvoiceService\par
+- ActivityService\par
+- Authentication helper actions\par
+\par
+Each service contains the business logic for its specific domain, such as validation, uniqueness checks, list pagination, creation, update, deletion, and logging. This design separates business logic from route handlers and keeps the code easier to maintain and test.\par
+\par
+\b Screenshot Placeholder 3:\b0 Insert a screenshot of the service folder structure here.\par
+\par
+\b 4. Implementation of the Software System\b0\par
+The implementation is based on Next.js with the App Router. The application includes dashboard pages and API route handlers for the core CRM modules. Implemented areas include:\par
+- Login and session handling\par
+- Dashboard shell and navigation\par
+- Company list and create pages\par
+- Client list and create pages\par
+- Invoice series list and create pages\par
+- Invoice list and create pages\par
+- Prisma-based database access\par
+\par
+The system was built with TypeScript strict mode, Tailwind CSS, and reusable UI components. Server-side validation is handled with Zod, and the app uses a structured service layer for database operations.\par
+\par
+\b Screenshot Placeholder 4:\b0 Insert a screenshot of the dashboard home page here.\par
+\b Screenshot Placeholder 5:\b0 Insert a screenshot of the companies page here.\par
+\b Screenshot Placeholder 6:\b0 Insert a screenshot of the clients page here.\par
+\b Screenshot Placeholder 7:\b0 Insert a screenshot of the invoice series page here.\par
+\b Screenshot Placeholder 8:\b0 Insert a screenshot of the invoices page here.\par
+\par
+\b 5. System Testing\b0\par
+The project was validated using build-time checks and schema validation. The following tests and checks were performed:\par
+- Prisma schema validation\par
+- Next.js production build\par
+- Route handler compilation checks\par
+- TypeScript type checking\par
+- Manual smoke testing of the dashboard pages\par
+\par
+The build passed successfully, which confirms that the application compiles correctly and that the implemented modules are structurally consistent.\par
+\par
+\b Screenshot Placeholder 9:\b0 Insert a screenshot of the successful build result or test output here.\par
+\par
+\b 6. Documentation\b0\par
+This report is part of the seminar documentation deliverable. It explains the requirements analysis, database redesign, system class design, implementation, and testing. The codebase also contains a migration prompt and implementation notes that track the progress of the project.\par
+\par
+\b Screenshot Placeholder 10:\b0 Insert a screenshot of the final documentation page or project summary here.\par
+\par
+\b Security Summary\b0\par
+The system includes several security improvements compared to the legacy version:\par
+- Server-side validation of input data\par
+- ORM-based database access instead of raw SQL concatenation\par
+- Ownership checks for company data\par
+- Secure session handling\par
+- Activity logging for important operations\par
+\par
+\b Conclusion\b0\par
+The CRM system has been migrated to a modern Next.js architecture while preserving the original business domain. The project now demonstrates all six seminar requirements: requirements analysis, secure database design, system class design, implementation, testing, and documentation.\par
+}

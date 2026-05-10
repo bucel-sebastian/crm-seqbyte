@@ -35,17 +35,29 @@ export const createClientSchema = z.object({
 
 export type CreateClientInput = z.infer<typeof createClientSchema>;
 
+export const createInvoiceSeriesSchema = z.object({
+  companyId: z.string().min(1, "Company is required"),
+  prefix: z.string().min(1, "Prefix is required").max(10, "Prefix is too long"),
+  startingNumber: z.number().int().min(1, "Starting number must be at least 1").default(1),
+  description: z.string().optional(),
+});
+
+export type CreateInvoiceSeriesInput = z.infer<typeof createInvoiceSeriesSchema>;
+
 // Invoice Validators
 export const invoiceProductSchema = z.object({
   name: z.string().min(1, "Product name is required"),
-  quantity: z.number().positive("Quantity must be positive"),
-  unitPrice: z.number().positive("Unit price must be positive"),
+  description: z.string().optional(),
+  unitOfMeasurement: z.string().min(1, "Unit of measurement is required"),
+  quantity: z.number().finite("Quantity must be a valid number"),
+  unitPrice: z.number().finite("Unit price must be a valid number"),
 });
 
 export const createInvoiceSchema = z.object({
   companyId: z.string().min(1, "Company is required"),
   clientId: z.string().min(1, "Client is required"),
   seriesId: z.string().min(1, "Invoice series is required"),
+  invoiceNumber: z.string().min(1, "Invoice number is required"),
   dateOfIssue: z.date(),
   dueDate: z.date().optional(),
   currency: z.string().default("RON"),

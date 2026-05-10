@@ -2,62 +2,79 @@
 
 import { prisma } from "@/lib/db";
 import * as bcrypt from "bcryptjs";
+import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { SignJWT, jwtVerify } from "jose";
 
-const secret = new TextEncoder().encode(process.env.BETTER_AUTH_SECRET!);
+const sessionCookieName = "crm-session";
+const sessionSecret = process.env.BETTER_AUTH_SECRET ?? "crm-dev-secret";
+
+function encodeSession(payload: { userId: string; email: string; name: string | null }) {
+  const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const signature = createHmac("sha256", sessionSecret).update(body).digest("base64url");
+  return `${body}.${signature}`;
+}
+
+function decodeSession(token: string) {
+  const [body, signature] = token.split(".");
+
+  if (!body || !signature) {
+    return null;
+  }
+
+  const expectedSignature = createHmac("sha256", sessionSecret).update(body).digest("base64url");
+  const expected = Buffer.from(expectedSignature);
+  const received = Buffer.from(signature);
+
+  if (expected.length !== received.length || !timingSafeEqual(expected, received)) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(Buffer.from(body, "base64url").toString("utf8")) as {
+      userId: string;
+      email: string;
+      name: string | null;
+    };
+  } catch {
+    return null;
+  }
+}
 
 export async function signInAction(email: string, password: string) {
   try {
-    // Find user by email
     const user = await prisma.user.findUnique({
       where: { email },
       include: { accounts: true },
     });
 
     if (!user) {
-      return {
-        success: false,
-        error: "Invalid email or password",
-      };
+      return { success: false, error: "Invalid email or password" };
     }
 
-    // Find password account
-    const passwordAccount = user.accounts.find((acc) => acc.password);
-    if (!passwordAccount) {
-      return {
-        success: false,
-        error: "Invalid email or password",
-      };
+    const passwordAccount = user.accounts.find((account) => account.password);
+    if (!passwordAccount?.password) {
+      return { success: false, error: "Invalid email or password" };
     }
 
-    // Verify password
-    const isValidPassword = await bcrypt.compare(password, passwordAccount.password || "");
+    const isValidPassword = await bcrypt.compare(password, passwordAccount.password);
     if (!isValidPassword) {
-      return {
-        success: false,
-        error: "Invalid email or password",
-      };
+      return { success: false, error: "Invalid email or password" };
     }
 
-    // Create JWT token
-    const token = await new SignJWT({
+    const token = encodeSession({
       userId: user.id,
       email: user.email,
       name: user.name,
-    })
-      .setProtectedHeader({ alg: "HS256" })
-      .setIssuedAt()
-      .setExpirationTime("7d")
-      .sign(secret);
+    });
 
-    // Set cookie
-    (await cookies()).set("auth-token", token, {
+    const cookieStore = await cookies();
+    cookieStore.set(sessionCookieName, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 604800, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
+      path: "/",
     });
 
     redirect("/dashboard");
@@ -73,19 +90,25 @@ export async function signInAction(email: string, password: string) {
 export async function getSessionAction() {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("auth-token")?.value;
+    const token = cookieStore.get(sessionCookieName)?.value;
 
-    if (!token) return null;
+    if (!token) {
+      return null;
+    }
 
-    const verified = await jwtVerify(token, secret);
-    return { user: verified.payload };
-  } catch (error) {
+    const session = decodeSession(token);
+    if (!session) {
+      return null;
+    }
+
+    return { user: session };
+  } catch {
     return null;
   }
 }
 
 export async function signOutAction() {
   const cookieStore = await cookies();
-  cookieStore.delete("auth-token");
+  cookieStore.delete(sessionCookieName);
   redirect("/login");
 }

@@ -28,6 +28,9 @@ export function Navigation() {
           <Link href="/dashboard/clients" className="hover:text-blue-400">
             Clients
           </Link>
+          <Link href="/dashboard/series" className="hover:text-blue-400">
+            Series
+          </Link>
           <Link href="/dashboard/invoices" className="hover:text-blue-400">
             Invoices
           </Link>
@@ -62,6 +65,9 @@ export function Navigation() {
           </Link>
           <Link href="/dashboard/clients" className="block py-2 hover:text-blue-400">
             Clients
+          </Link>
+          <Link href="/dashboard/series" className="block py-2 hover:text-blue-400">
+            Series
           </Link>
           <Link href="/dashboard/invoices" className="block py-2 hover:text-blue-400">
             Invoices

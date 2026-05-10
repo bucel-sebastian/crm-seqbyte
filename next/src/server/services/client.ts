@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 
 export class ClientService {
   async create(data: {
@@ -62,7 +63,7 @@ export class ClientService {
     };
   }
 
-  async update(id: string, data: Partial<Omit<typeof prisma.client.create, "data">>) {
+  async update(id: string, data: Partial<Prisma.ClientUpdateInput>) {
     return prisma.client.update({
       where: { id },
       data,
