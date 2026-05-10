@@ -17,7 +17,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2, Plus, Trash2 } from "lucide-react";
 import { createInvoiceSchema } from "@/lib/validators";
-import { getSessionAction } from "@/server/actions/auth";
 
 interface OptionItem {
   id: string;
@@ -95,7 +94,7 @@ export default function NewInvoicePage() {
       exchangeRate: "",
       products: [
         {
-          name: "Service",
+          name: "Serviciu",
           description: "",
           unitOfMeasurement: "Buc",
           quantity: "1",
@@ -156,12 +155,6 @@ export default function NewInvoicePage() {
   useEffect(() => {
     const loadOptions = async () => {
       try {
-        const session = await getSessionAction();
-        if (!session?.user) {
-          router.push("/login");
-          return;
-        }
-
         const [companiesResponse, clientsResponse, seriesResponse] = await Promise.all([
           fetch("/api/companies"),
           fetch("/api/clients"),
@@ -176,7 +169,7 @@ export default function NewInvoicePage() {
         setClients(clientsData.clients || []);
         setSeries(seriesData.series || []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load form data");
+        setError(err instanceof Error ? err.message : "Nu s-au putut incarca datele formularului");
       } finally {
         setFormLoading(false);
       }
@@ -223,12 +216,12 @@ export default function NewInvoicePage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to create invoice");
+        throw new Error(data.error || "Nu s-a putut crea factura");
       }
 
       router.push("/dashboard/finances/invoices");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err instanceof Error ? err.message : "A aparut o eroare");
     } finally {
       setIsLoading(false);
     }
@@ -244,15 +237,15 @@ export default function NewInvoicePage() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Invoice creation</p>
-        <h1 className="text-3xl font-semibold tracking-tight">Create Invoice</h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">Add a new billing record with the company, client, series, and line items.</p>
+        <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Creare factura</p>
+        <h1 className="text-3xl font-semibold tracking-tight">Creeaza factura</h1>
+        <p className="max-w-2xl text-sm text-muted-foreground">Adauga o factura noua cu compania, clientul, seria si liniile de produse.</p>
       </div>
 
    
      
-          <CardTitle>Invoice Information</CardTitle>
-          <CardDescription>Fill in the details below.</CardDescription>
+          <CardTitle>Informatii factura</CardTitle>
+          <CardDescription>Completeaza datele de mai jos.</CardDescription>
      
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
@@ -264,10 +257,10 @@ export default function NewInvoicePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2 md:col-span-2">
-                <Label>Company *</Label>
+                <Label>Companie *</Label>
                 <Select value={formData.companyId} onValueChange={(value) => setFormData((previous) => ({ ...previous, companyId: value }))}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select company" />
+                    <SelectValue placeholder="Selecteaza compania" />
                   </SelectTrigger>
                   <SelectContent>
                     {companies.map((company) => (
@@ -282,7 +275,7 @@ export default function NewInvoicePage() {
                 <Label>Client *</Label>
                 <Select value={formData.clientId} onValueChange={(value) => setFormData((previous) => ({ ...previous, clientId: value }))}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select client" />
+                    <SelectValue placeholder="Selecteaza clientul" />
                   </SelectTrigger>
                   <SelectContent>
                     {clients.map((client) => (
@@ -294,10 +287,10 @@ export default function NewInvoicePage() {
                 </Select>
               </div>
               <div className="space-y-2 md:col-span-2">
-                <Label>Series *</Label>
+                <Label>Serie *</Label>
                 <Select value={formData.seriesId} onValueChange={(value) => setFormData((previous) => ({ ...previous, seriesId: value }))}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select series" />
+                    <SelectValue placeholder="Selecteaza seria" />
                   </SelectTrigger>
                   <SelectContent>
                     {series.map((item) => (
@@ -309,11 +302,11 @@ export default function NewInvoicePage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="invoiceNumber">Invoice number *</Label>
-                <Input id="invoiceNumber" value={formData.invoiceNumber} onChange={(e) => setFormData((previous) => ({ ...previous, invoiceNumber: e.target.value }))} placeholder="Invoice number" />
+                <Label htmlFor="invoiceNumber">Numar factura *</Label>
+                <Input id="invoiceNumber" value={formData.invoiceNumber} onChange={(e) => setFormData((previous) => ({ ...previous, invoiceNumber: e.target.value }))} placeholder="Numar factura" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="dateOfIssue">Date of issue *</Label>
+                <Label htmlFor="dateOfIssue">Data emiterii *</Label>
                 <Input
                   id="dateOfIssue"
                   type="date"
@@ -348,23 +341,23 @@ export default function NewInvoicePage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="currency">Currency *</Label>
+                <Label htmlFor="currency">Moneda *</Label>
                 <Input id="currency" value={formData.currency} onChange={(e) => setFormData((previous) => ({ ...previous, currency: e.target.value }))} placeholder="RON" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="vatRate">VAT rate *</Label>
+                <Label htmlFor="vatRate">Cota TVA *</Label>
                 <Input id="vatRate" type="number" min="0" max="100" value={formData.vatRate} onChange={(e) => setFormData((previous) => ({ ...previous, vatRate: e.target.value }))} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="exchangeRate">Exchange rate</Label>
-                <Input id="exchangeRate" type="number" step="0.000001" value={formData.exchangeRate} onChange={(e) => setFormData((previous) => ({ ...previous, exchangeRate: e.target.value }))} placeholder="Exchange rate" />
+                <Label htmlFor="exchangeRate">Curs valutar</Label>
+                <Input id="exchangeRate" type="number" step="0.000001" value={formData.exchangeRate} onChange={(e) => setFormData((previous) => ({ ...previous, exchangeRate: e.target.value }))} placeholder="Curs valutar" />
               </div>
               <div className="space-y-3 md:col-span-2">
                 <div className="flex items-center justify-between gap-3">
-                  <Label>Products *</Label>
+                  <Label>Produse *</Label>
                   <Button type="button" variant="outline" size="sm" onClick={addProductRow}>
                     <Plus className="mr-2 h-4 w-4" />
-                    Add row
+                    Adauga rand
                   </Button>
                 </div>
 
@@ -373,13 +366,13 @@ export default function NewInvoicePage() {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-[72px]">nr. crt</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead className="w-[180px]">Unit of measurement</TableHead>
-                        <TableHead className="w-[140px]">Quantity</TableHead>
-                        <TableHead className="w-[140px]">Unit price</TableHead>
-                        <TableHead className="w-[160px]">Row total price</TableHead>
-                        <TableHead className="w-[88px] text-right">Actions</TableHead>
+                        <TableHead>Denumire</TableHead>
+                        <TableHead>Descriere</TableHead>
+                        <TableHead className="w-[180px]">Unitate de masura</TableHead>
+                        <TableHead className="w-[140px]">Cantitate</TableHead>
+                        <TableHead className="w-[140px]">Pret unitar</TableHead>
+                        <TableHead className="w-[160px]">Pret total rand</TableHead>
+                        <TableHead className="w-[88px] text-right">Actiuni</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -393,14 +386,14 @@ export default function NewInvoicePage() {
                               <Input
                                 value={product.name}
                                 onChange={(event) => updateProductRow(index, "name", event.target.value)}
-                                placeholder="Product name"
+                                placeholder="Denumire produs"
                               />
                             </TableCell>
                             <TableCell className="align-top">
                               <Input
                                 value={product.description}
                                 onChange={(event) => updateProductRow(index, "description", event.target.value)}
-                                placeholder="Description"
+                                placeholder="Descriere"
                               />
                             </TableCell>
                             <TableCell className="align-top">
@@ -409,7 +402,7 @@ export default function NewInvoicePage() {
                                 onValueChange={(value) => updateProductRow(index, "unitOfMeasurement", value)}
                               >
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select unit" />
+                                  <SelectValue placeholder="Selecteaza unitatea" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   {unitOfMeasurementOptions.map((option) => (
@@ -448,7 +441,7 @@ export default function NewInvoicePage() {
                                 disabled={formData.products.length === 1}
                               >
                                 <Trash2 className="h-4 w-4" />
-                                <span className="sr-only">Remove row</span>
+                                <span className="sr-only">Sterge rand</span>
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -459,7 +452,7 @@ export default function NewInvoicePage() {
                 </div>
 
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <span>Total without VAT</span>
+                  <span>Total fara TVA</span>
                   <span className="font-medium text-foreground">
                     {totalWithoutVat.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                   </span>
@@ -468,8 +461,8 @@ export default function NewInvoicePage() {
             </div>
 
             <div className="flex gap-4 pt-4">
-              <Button type="submit" disabled={isLoading} className="flex-1">{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Create Invoice</Button>
-              <Button type="button" onClick={() => router.back()} variant="outline" disabled={isLoading}>Cancel</Button>
+              <Button type="submit" disabled={isLoading} className="flex-1">{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Creeaza factura</Button>
+              <Button type="button" onClick={() => router.back()} variant="outline" disabled={isLoading}>Anuleaza</Button>
             </div>
           </form>
      

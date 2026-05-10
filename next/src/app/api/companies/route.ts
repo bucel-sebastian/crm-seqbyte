@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   try {
     const session = await getSessionAction();
     if (!session) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      return new Response(JSON.stringify({ error: "Neautorizat" }), {
         status: 401,
       });
     }
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get("page") || "1");
     const pageSize = parseInt(searchParams.get("pageSize") || "10");
 
-    const result = await companyService.listByOwner(session.user.userId, page, pageSize);
+    const result = await companyService.listByOwner(session.user.id, page, pageSize);
 
     return new Response(
       JSON.stringify({
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     );
   } catch (error) {
     console.error("GET /api/companies error:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
+    return new Response(JSON.stringify({ error: "Eroare interna de server" }), {
       status: 500,
     });
   }
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   try {
     const session = await getSessionAction();
     if (!session) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      return new Response(JSON.stringify({ error: "Neautorizat" }), {
         status: 401,
       });
     }
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     if (!validation.success) {
       return new Response(
         JSON.stringify({
-          error: "Validation failed",
+          error: "Validarea a esuat",
           issues: validation.error.errors,
         }),
         { status: 400 }
@@ -61,14 +61,14 @@ export async function POST(request: Request) {
 
     const company = await companyService.create({
       ...validation.data,
-      ownerId: session.user.userId,
+      ownerId: session.user.id,
     });
 
     // Log activity
     await activityService.log({
-      userId: session.user.userId,
+      userId: session.user.id,
       type: "COMPANY_ACTION",
-      action: "Created company",
+      action: "Companie creata",
       details: { companyId: company.id, name: company.name },
     });
 
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("POST /api/companies error:", error);
     const message =
-      error instanceof Error ? error.message : "Internal server error";
+      error instanceof Error ? error.message : "Eroare interna de server";
     return new Response(JSON.stringify({ error: message }), { status: 500 });
   }
 }

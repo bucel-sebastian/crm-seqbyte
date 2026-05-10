@@ -9,12 +9,12 @@ export async function GET(
   const { id } = await params;
   const session = await getSessionAction();
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return Response.json({ error: "Neautorizat" }, { status: 401 });
   }
 
   const client = await clientService.getById(id);
   if (!client) {
-    return Response.json({ error: "Not found" }, { status: 404 });
+    return Response.json({ error: "Nu a fost gasit" }, { status: 404 });
   }
 
   return Response.json(client);
@@ -28,26 +28,26 @@ export async function DELETE(
     const { id } = await params;
     const session = await getSessionAction();
     if (!session) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return Response.json({ error: "Neautorizat" }, { status: 401 });
     }
 
     const client = await clientService.getById(id);
     if (!client) {
-      return Response.json({ error: "Not found" }, { status: 404 });
+      return Response.json({ error: "Nu a fost gasit" }, { status: 404 });
     }
 
     await clientService.delete(id);
 
     await activityService.log({
-      userId: session.user.userId,
+      userId: session.user.id,
       type: "CLIENT_ACTION",
-      action: "Deleted client",
+      action: "Client sters",
       details: { clientId: id, name: client.name },
     });
 
     return Response.json({ success: true });
   } catch (error) {
     console.error("DELETE /api/clients/[id] error:", error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return Response.json({ error: "Eroare interna de server" }, { status: 500 });
   }
 }

@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   try {
     const session = await getSessionAction();
     if (!session) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return Response.json({ error: "Neautorizat" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("GET /api/clients error:", error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return Response.json({ error: "Eroare interna de server" }, { status: 500 });
   }
 }
 
@@ -30,28 +30,28 @@ export async function POST(request: Request) {
   try {
     const session = await getSessionAction();
     if (!session) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return Response.json({ error: "Neautorizat" }, { status: 401 });
     }
 
     const body = await request.json();
     const validation = createClientSchema.safeParse(body);
     if (!validation.success) {
-      return Response.json({ error: "Validation failed", issues: validation.error.errors }, { status: 400 });
+      return Response.json({ error: "Validarea a esuat", issues: validation.error.errors }, { status: 400 });
     }
 
     const client = await clientService.create(validation.data);
 
     await activityService.log({
-      userId: session.user.userId,
+      userId: session.user.id,
       type: "CLIENT_ACTION",
-      action: "Created client",
+      action: "Client creat",
       details: { clientId: client.id, name: client.name },
     });
 
     return Response.json(client, { status: 201 });
   } catch (error) {
     console.error("POST /api/clients error:", error);
-    const message = error instanceof Error ? error.message : "Internal server error";
+    const message = error instanceof Error ? error.message : "Eroare interna de server";
     return Response.json({ error: message }, { status: 500 });
   }
 }

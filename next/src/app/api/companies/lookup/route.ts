@@ -1,14 +1,14 @@
 import { getSessionAction } from "@/server/actions/auth";
 
 /**
- * Fetch company data from ANAF service by VAT/CUI
+ * Obtine datele companiei din serviciul ANAF dupa VAT/CUI
  * GET /api/companies/lookup?vat=RO12345678
  */
 export async function GET(request: Request) {
   try {
     const session = await getSessionAction();
     if (!session) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      return new Response(JSON.stringify({ error: "Neautorizat" }), {
         status: 401,
       });
     }
@@ -18,15 +18,20 @@ export async function GET(request: Request) {
 
     if (!vat) {
       return new Response(
-        JSON.stringify({ error: "VAT parameter is required" }),
+        JSON.stringify({ error: "Parametrul VAT este obligatoriu" }),
         { status: 400 }
       );
     }
 
-    // Validate VAT format (should be like ROxxxxxx or similar)
-    if (!vat.match(/^[A-Z]{2}[0-9]{1,30}$/)) {
+    const normalizedVatInput = vat.trim().toUpperCase();
+    const lookupVat = normalizedVatInput.startsWith("RO")
+      ? normalizedVatInput.slice(2)
+      : normalizedVatInput;
+
+    // Accepta VAT cu sau fara prefixul RO
+    if (!lookupVat.match(/^[0-9]{1,30}$/)) {
       return new Response(
-        JSON.stringify({ error: "Invalid VAT format" }),
+        JSON.stringify({ error: "Format VAT invalid" }),
         { status: 400 }
       );
     }
@@ -35,14 +40,14 @@ export async function GET(request: Request) {
     const openApiKey = process.env.OPENAPI_KEY;
 
     if (!openApiUrl || !openApiKey) {
-      console.error("OPENAPI_URL or OPENAPI_KEY not configured");
+      console.error("OPENAPI_URL sau OPENAPI_KEY nu sunt configurate");
       return new Response(
-        JSON.stringify({ error: "Service temporarily unavailable" }),
+        JSON.stringify({ error: "Serviciu temporar indisponibil" }),
         { status: 503 }
       );
     }
 
-    const response = await fetch(`${openApiUrl}/api/companies/${vat}`, {
+    const response = await fetch(`${openApiUrl}/api/companies/${lookupVat}`, {
       headers: {
         "x-api-key": openApiKey,
       },
@@ -52,7 +57,7 @@ export async function GET(request: Request) {
       const errorBody = await response.json().catch(() => ({}));
       if (errorBody?.error) {
         return new Response(
-          JSON.stringify({ error: "VAT code is invalid or not found" }),
+          JSON.stringify({ error: "Codul VAT este invalid sau nu a fost gasit" }),
           { status: 404 }
         );
       }
@@ -61,10 +66,10 @@ export async function GET(request: Request) {
 
     const companyData = await response.json();
 
-    // Map ANAF response to our company schema
+    // Mapeaza raspunsul ANAF la schema noastra de companie
     const mappedData = {
       name: companyData.name || companyData.denumire || "",
-      vat: vat,
+      vat: normalizedVatInput.startsWith("RO") ? `RO${lookupVat}` : lookupVat,
       registrationNumber: companyData.registrationNumber || companyData.nrInmatriculare || "",
       country: companyData.country || "RO",
       county: companyData.county || companyData.judet || "",
@@ -81,7 +86,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("GET /api/companies/lookup error:", error);
     return new Response(
-      JSON.stringify({ error: "Internal server error" }),
+      JSON.stringify({ error: "Eroare interna de server" }),
       { status: 500 }
     );
   }

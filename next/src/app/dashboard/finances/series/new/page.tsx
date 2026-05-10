@@ -17,7 +17,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { createInvoiceSeriesSchema } from "@/lib/validators";
-import { getSessionAction } from "@/server/actions/auth";
 
 interface CompanyOption {
   id: string;
@@ -35,17 +34,11 @@ export default function NewSeriesPage() {
   useEffect(() => {
     const loadCompanies = async () => {
       try {
-        const session = await getSessionAction();
-        if (!session?.user) {
-          router.push("/login");
-          return;
-        }
-
         const response = await fetch("/api/companies");
         const data = await response.json();
         setCompanies(data.companies || []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load companies");
+        setError(err instanceof Error ? err.message : "Nu s-a putut incarca lista de companii");
       } finally {
         setFormLoading(false);
       }
@@ -80,12 +73,12 @@ export default function NewSeriesPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to create series");
+        throw new Error(data.error || "Nu s-a putut crea seria");
       }
 
       router.push("/dashboard/finances/series");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err instanceof Error ? err.message : "A aparut o eroare");
     } finally {
       setIsLoading(false);
     }
@@ -98,15 +91,15 @@ export default function NewSeriesPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="space-y-2">
-        <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Series setup</p>
-        <h1 className="text-3xl font-semibold tracking-tight">Create Series</h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">Add a new invoice numbering series and connect it to a company.</p>
+        <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Configurare serie</p>
+        <h1 className="text-3xl font-semibold tracking-tight">Creeaza serie</h1>
+        <p className="max-w-2xl text-sm text-muted-foreground">Adauga o serie noua de numerotare si conecteaz-o la o companie.</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Series Information</CardTitle>
-          <CardDescription>Fill in the details below.</CardDescription>
+          <CardTitle>Informatii serie</CardTitle>
+          <CardDescription>Completeaza datele de mai jos.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -118,10 +111,10 @@ export default function NewSeriesPage() {
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2 md:col-span-2">
-                <Label>Company *</Label>
+                <Label>Companie *</Label>
                 <Select value={formData.companyId} onValueChange={(value) => setFormData((previous) => ({ ...previous, companyId: value }))}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select company" />
+                    <SelectValue placeholder="Selecteaza compania" />
                   </SelectTrigger>
                   <SelectContent>
                     {companies.map((company) => (
@@ -137,17 +130,17 @@ export default function NewSeriesPage() {
                 <Input id="prefix" name="prefix" value={formData.prefix} onChange={(e) => setFormData((previous) => ({ ...previous, prefix: e.target.value }))} placeholder="INV" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="startingNumber">Starting number *</Label>
+                <Label htmlFor="startingNumber">Numar initial *</Label>
                 <Input id="startingNumber" name="startingNumber" type="number" min="1" value={formData.startingNumber} onChange={(e) => setFormData((previous) => ({ ...previous, startingNumber: e.target.value }))} />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" name="description" value={formData.description} onChange={(e) => setFormData((previous) => ({ ...previous, description: e.target.value }))} placeholder="Optional description" />
+                <Label htmlFor="description">Descriere</Label>
+                <Textarea id="description" name="description" value={formData.description} onChange={(e) => setFormData((previous) => ({ ...previous, description: e.target.value }))} placeholder="Descriere optionala" />
               </div>
             </div>
             <div className="flex gap-4 pt-4">
-              <Button type="submit" disabled={isLoading} className="flex-1">{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Create Series</Button>
-              <Button type="button" onClick={() => router.back()} variant="outline" disabled={isLoading}>Cancel</Button>
+              <Button type="submit" disabled={isLoading} className="flex-1">{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Creeaza serie</Button>
+              <Button type="button" onClick={() => router.back()} variant="outline" disabled={isLoading}>Anuleaza</Button>
             </div>
           </form>
         </CardContent>

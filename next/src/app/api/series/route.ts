@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   try {
     const session = await getSessionAction();
     if (!session) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return Response.json({ error: "Neautorizat" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("GET /api/series error:", error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return Response.json({ error: "Eroare interna de server" }, { status: 500 });
   }
 }
 
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   try {
     const session = await getSessionAction();
     if (!session) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return Response.json({ error: "Neautorizat" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -40,22 +40,22 @@ export async function POST(request: Request) {
     });
 
     if (!validation.success) {
-      return Response.json({ error: "Validation failed", issues: validation.error.errors }, { status: 400 });
+      return Response.json({ error: "Validarea a esuat", issues: validation.error.errors }, { status: 400 });
     }
 
     const series = await invoiceSeriesService.create(validation.data);
 
     await activityService.log({
-      userId: session.user.userId,
+      userId: session.user.id,
       type: "SERIES_ACTION",
-      action: "Created invoice series",
+      action: "Serie de facturi creata",
       details: { seriesId: series.id, prefix: series.prefix },
     });
 
     return Response.json(series, { status: 201 });
   } catch (error) {
     console.error("POST /api/series error:", error);
-    const message = error instanceof Error ? error.message : "Internal server error";
+    const message = error instanceof Error ? error.message : "Eroare interna de server";
     return Response.json({ error: message }, { status: 500 });
   }
 }

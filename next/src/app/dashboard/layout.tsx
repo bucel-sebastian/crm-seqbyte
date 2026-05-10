@@ -13,8 +13,16 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { getSession } from "@/lib/auth-server";
+import { redirect } from "next/navigation";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+
+  const session = await getSession();
+  if (!session) {
+    redirect("/login");
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -26,7 +34,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               orientation="vertical"
               className="mr-2 h-4"
             />
-            <Breadcrumb>
+            {/* <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
@@ -36,7 +44,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <BreadcrumbPage>Workspace</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
-            </Breadcrumb>
+            </Breadcrumb> */}
           </div>
         </header>
         <div className="flex-1 p-4 md:p-6">

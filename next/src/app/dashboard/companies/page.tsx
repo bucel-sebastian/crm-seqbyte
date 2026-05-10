@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Edit2, Trash2, AlertCircle } from "lucide-react";
-import { getSessionAction } from "@/server/actions/auth";
 
 interface Company {
   id: string;
@@ -28,19 +27,13 @@ export default function CompaniesPage() {
   useEffect(() => {
     const loadCompanies = async () => {
       try {
-        const session = await getSessionAction();
-        if (!session?.user) {
-          router.push("/login");
-          return;
-        }
-
         const response = await fetch("/api/companies");
-        if (!response.ok) throw new Error("Failed to load companies");
+        if (!response.ok) throw new Error("Nu s-a putut incarca lista de companii");
 
         const data = await response.json();
         setCompanies(data.companies || []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        setError(err instanceof Error ? err.message : "A aparut o eroare");
       } finally {
         setIsLoading(false);
       }
@@ -50,14 +43,14 @@ export default function CompaniesPage() {
   }, [router]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
+    if (!confirm("Esti sigur?")) return;
 
     try {
       const response = await fetch(`/api/companies/${id}`, { method: "DELETE" });
-      if (!response.ok) throw new Error("Failed to delete");
+      if (!response.ok) throw new Error("Nu s-a putut sterge inregistrarea");
       setCompanies((previous) => previous.filter((company) => company.id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Delete failed");
+      setError(err instanceof Error ? err.message : "Stergerea a esuat");
     }
   };
 
@@ -65,16 +58,16 @@ export default function CompaniesPage() {
     <div className="space-y-6">
       <section className="flex flex-col gap-4 rounded-3xl border bg-card p-6 shadow-sm md:flex-row md:items-end md:justify-between">
         <div className="space-y-2">
-          <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Company registry</p>
-          <h1 className="text-3xl font-semibold tracking-tight">Companies</h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">Keep legal entities, billing information, and contact details organized.</p>
+          <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Registru companii</p>
+          <h1 className="text-3xl font-semibold tracking-tight">Companii</h1>
+          <p className="max-w-2xl text-sm text-muted-foreground">Pastreaza organizate entitatile juridice, datele de facturare si detaliile de contact.</p>
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant="secondary">{isLoading ? "..." : `${companies.length} records`}</Badge>
+          <Badge variant="secondary">{isLoading ? "..." : `${companies.length} inregistrari`}</Badge>
           <Button asChild>
           <Link href="/dashboard/companies/new">
             <Plus className="h-4 w-4 mr-2" />
-            New Company
+            Companie noua
           </Link>
           </Button>
         </div>
@@ -104,12 +97,12 @@ export default function CompaniesPage() {
       ) : companies.length === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>No companies yet</CardTitle>
-            <CardDescription>Add the first billing entity to get started.</CardDescription>
+            <CardTitle>Nu exista companii inca</CardTitle>
+            <CardDescription>Adauga prima entitate de facturare pentru a incepe.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild>
-              <Link href="/dashboard/companies/new">Create company</Link>
+              <Link href="/dashboard/companies/new">Creeaza companie</Link>
             </Button>
           </CardContent>
         </Card>
@@ -122,10 +115,10 @@ export default function CompaniesPage() {
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="text-lg font-semibold">{company.name}</h3>
-                      <Badge variant="outline">VAT {company.vat}</Badge>
+                      <Badge variant="outline">CUI {company.vat}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">{company.city}, {company.country}</p>
-                    <p className="text-sm text-muted-foreground">Registered: {company.createdAt ? new Date(company.createdAt).toLocaleDateString() : "n/a"}</p>
+                    <p className="text-sm text-muted-foreground">Inregistrata: {company.createdAt ? new Date(company.createdAt).toLocaleDateString() : "n/a"}</p>
                   </div>
                   <div className="flex shrink-0 gap-2">
                     <Button asChild size="sm" variant="outline">

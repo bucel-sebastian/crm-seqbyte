@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Trash2, AlertCircle, ArrowRightLeft } from "lucide-react";
-import { getSessionAction } from "@/server/actions/auth";
 
 interface InvoiceItem {
   id: string;
@@ -28,19 +27,13 @@ export default function InvoicesPage() {
   useEffect(() => {
     const loadInvoices = async () => {
       try {
-        const session = await getSessionAction();
-        if (!session?.user) {
-          router.push("/login");
-          return;
-        }
-
         const response = await fetch("/api/invoices");
-        if (!response.ok) throw new Error("Failed to load invoices");
+        if (!response.ok) throw new Error("Nu s-a putut incarca lista de facturi");
 
         const data = await response.json();
         setInvoices(data.invoices || []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        setError(err instanceof Error ? err.message : "A aparut o eroare");
       } finally {
         setIsLoading(false);
       }
@@ -50,14 +43,14 @@ export default function InvoicesPage() {
   }, [router]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
+    if (!confirm("Esti sigur?")) return;
 
     try {
       const response = await fetch(`/api/invoices/${id}`, { method: "DELETE" });
-      if (!response.ok) throw new Error("Failed to delete");
+      if (!response.ok) throw new Error("Nu s-a putut sterge inregistrarea");
       setInvoices((previous) => previous.filter((item) => item.id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Delete failed");
+      setError(err instanceof Error ? err.message : "Stergerea a esuat");
     }
   };
 
@@ -65,16 +58,16 @@ export default function InvoicesPage() {
     <div className="space-y-6">
       <section className="flex flex-col gap-4 rounded-3xl border bg-card p-6 shadow-sm md:flex-row md:items-end md:justify-between">
         <div className="space-y-2">
-          <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Billing ledger</p>
-          <h1 className="text-3xl font-semibold tracking-tight">Invoices</h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">Manage invoice records, status, and customer handoff from a single view.</p>
+          <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Registru facturare</p>
+          <h1 className="text-3xl font-semibold tracking-tight">Facturi</h1>
+          <p className="max-w-2xl text-sm text-muted-foreground">Gestioneaza facturile, statusul si relatia companie-client dintr-o singura vedere.</p>
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant="secondary">{isLoading ? "..." : `${invoices.length} invoices`}</Badge>
+          <Badge variant="secondary">{isLoading ? "..." : `${invoices.length} facturi`}</Badge>
           <Button asChild>
             <Link href="/dashboard/finances/invoices/new">
               <Plus className="h-4 w-4 mr-2" />
-            New Invoice
+            Factura noua
             </Link>
           </Button>
         </div>
@@ -104,12 +97,12 @@ export default function InvoicesPage() {
       ) : invoices.length === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>No invoices yet</CardTitle>
-            <CardDescription>Create the first invoice when a client is ready to be billed.</CardDescription>
+            <CardTitle>Nu exista facturi inca</CardTitle>
+            <CardDescription>Creeaza prima factura cand un client este pregatit pentru facturare.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild>
-              <Link href="/dashboard/finances/invoices/new">Create invoice</Link>
+              <Link href="/dashboard/finances/invoices/new">Creeaza factura</Link>
             </Button>
           </CardContent>
         </Card>
@@ -121,7 +114,7 @@ export default function InvoicesPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-lg font-semibold">Invoice {invoice.invoiceNumber}</h3>
+                      <h3 className="text-lg font-semibold">Factura {invoice.invoiceNumber}</h3>
                       <Badge variant="outline">{invoice.status}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">{invoice.company?.name} <ArrowRightLeft className="inline-block size-3.5 align-middle" /> {invoice.client?.name}</p>

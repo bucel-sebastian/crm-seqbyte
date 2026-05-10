@@ -10,14 +10,14 @@ export async function DELETE(
     const { id } = await params;
     const session = await getSessionAction();
     if (!session) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      return new Response(JSON.stringify({ error: "Neautorizat" }), {
         status: 401,
       });
     }
 
     const company = await companyService.getById(id);
-    if (!company || company.ownerId !== session.user.userId) {
-      return new Response(JSON.stringify({ error: "Not found" }), {
+    if (!company || company.ownerId !== session.user.id) {
+      return new Response(JSON.stringify({ error: "Nu a fost gasit" }), {
         status: 404,
       });
     }
@@ -26,16 +26,16 @@ export async function DELETE(
 
     // Log activity
     await activityService.log({
-      userId: session.user.userId,
+      userId: session.user.id,
       type: "COMPANY_ACTION",
-      action: "Deleted company",
+      action: "Companie stearsa",
       details: { companyId: id, name: company.name },
     });
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (error) {
     console.error("DELETE /api/companies/[id] error:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
+    return new Response(JSON.stringify({ error: "Eroare interna de server" }), {
       status: 500,
     });
   }
@@ -49,14 +49,14 @@ export async function GET(
     const { id } = await params;
     const session = await getSessionAction();
     if (!session) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      return new Response(JSON.stringify({ error: "Neautorizat" }), {
         status: 401,
       });
     }
 
     const company = await companyService.getById(id);
-    if (!company || company.ownerId !== session.user.userId) {
-      return new Response(JSON.stringify({ error: "Not found" }), {
+    if (!company || company.ownerId !== session.user.id) {
+      return new Response(JSON.stringify({ error: "Nu a fost gasit" }), {
         status: 404,
       });
     }
@@ -64,7 +64,7 @@ export async function GET(
     return new Response(JSON.stringify(company), { status: 200 });
   } catch (error) {
     console.error("GET /api/companies/[id] error:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
+    return new Response(JSON.stringify({ error: "Eroare interna de server" }), {
       status: 500,
     });
   }

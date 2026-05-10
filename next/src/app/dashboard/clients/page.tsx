@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Edit2, Trash2, AlertCircle } from "lucide-react";
-import { getSessionAction } from "@/server/actions/auth";
 
 interface ClientItem {
   id: string;
@@ -27,19 +26,13 @@ export default function ClientsPage() {
   useEffect(() => {
     const loadClients = async () => {
       try {
-        const session = await getSessionAction();
-        if (!session?.user) {
-          router.push("/login");
-          return;
-        }
-
         const response = await fetch("/api/clients");
-        if (!response.ok) throw new Error("Failed to load clients");
+        if (!response.ok) throw new Error("Nu s-a putut incarca lista de clienti");
 
         const data = await response.json();
         setClients(data.clients || []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        setError(err instanceof Error ? err.message : "A aparut o eroare");
       } finally {
         setIsLoading(false);
       }
@@ -49,14 +42,14 @@ export default function ClientsPage() {
   }, [router]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
+    if (!confirm("Esti sigur?")) return;
 
     try {
       const response = await fetch(`/api/clients/${id}`, { method: "DELETE" });
-      if (!response.ok) throw new Error("Failed to delete");
+      if (!response.ok) throw new Error("Nu s-a putut sterge inregistrarea");
       setClients((previous) => previous.filter((client) => client.id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Delete failed");
+      setError(err instanceof Error ? err.message : "Stergerea a esuat");
     }
   };
 
@@ -64,16 +57,16 @@ export default function ClientsPage() {
     <div className="space-y-6">
       <section className="flex flex-col gap-4 rounded-3xl border bg-card p-6 shadow-sm md:flex-row md:items-end md:justify-between">
         <div className="space-y-2">
-          <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Client directory</p>
-          <h1 className="text-3xl font-semibold tracking-tight">Clients</h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">Manage client records, billing details, and contact information from one place.</p>
+          <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Registru clienti</p>
+          <h1 className="text-3xl font-semibold tracking-tight">Clienti</h1>
+          <p className="max-w-2xl text-sm text-muted-foreground">Gestioneaza datele clientilor, detaliile de facturare si informatiile de contact dintr-un singur loc.</p>
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant="secondary">{isLoading ? "..." : `${clients.length} records`}</Badge>
+          <Badge variant="secondary">{isLoading ? "..." : `${clients.length} inregistrari`}</Badge>
           <Button asChild>
           <Link href="/dashboard/clients/new">
             <Plus className="h-4 w-4 mr-2" />
-            New Client
+            Client nou
           </Link>
           </Button>
         </div>
@@ -103,12 +96,12 @@ export default function ClientsPage() {
       ) : clients.length === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>No clients yet</CardTitle>
-            <CardDescription>Create the first client to start building your CRM.</CardDescription>
+            <CardTitle>Nu exista clienti inca</CardTitle>
+            <CardDescription>Creeaza primul client pentru a incepe sa construiesti CRM-ul.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild>
-              <Link href="/dashboard/clients/new">Create client</Link>
+              <Link href="/dashboard/clients/new">Creeaza client</Link>
             </Button>
           </CardContent>
         </Card>
@@ -121,10 +114,10 @@ export default function ClientsPage() {
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="text-lg font-semibold">{client.name}</h3>
-                      <Badge variant="outline">VAT {client.vat}</Badge>
+                      <Badge variant="outline">CUI {client.vat}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">{client.city}, {client.country}</p>
-                    <p className="text-sm text-muted-foreground">Client ID: {client.id}</p>
+                    <p className="text-sm text-muted-foreground">ID client: {client.id}</p>
                   </div>
                   <div className="flex shrink-0 gap-2">
                     <Button asChild size="sm" variant="outline">

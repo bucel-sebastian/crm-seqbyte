@@ -9,12 +9,12 @@ export async function GET(
   const { id } = await params;
   const session = await getSessionAction();
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return Response.json({ error: "Neautorizat" }, { status: 401 });
   }
 
   const invoice = await invoiceService.getById(id);
   if (!invoice) {
-    return Response.json({ error: "Not found" }, { status: 404 });
+    return Response.json({ error: "Nu a fost gasita" }, { status: 404 });
   }
 
   return Response.json(invoice);
@@ -28,26 +28,26 @@ export async function DELETE(
     const { id } = await params;
     const session = await getSessionAction();
     if (!session) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return Response.json({ error: "Neautorizat" }, { status: 401 });
     }
 
     const invoice = await invoiceService.getById(id);
     if (!invoice) {
-      return Response.json({ error: "Not found" }, { status: 404 });
+      return Response.json({ error: "Nu a fost gasita" }, { status: 404 });
     }
 
     await invoiceService.delete(id);
 
     await activityService.log({
-      userId: session.user.userId,
+      userId: session.user.id,
       type: "INVOICE_ACTION",
-      action: "Deleted invoice",
+      action: "Factura stearsa",
       details: { invoiceId: id, invoiceNumber: invoice.invoiceNumber },
     });
 
     return Response.json({ success: true });
   } catch (error) {
     console.error("DELETE /api/invoices/[id] error:", error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return Response.json({ error: "Eroare interna de server" }, { status: 500 });
   }
 }

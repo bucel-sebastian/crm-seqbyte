@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   try {
     const session = await getSessionAction();
     if (!session) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return Response.json({ error: "Neautorizat" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("GET /api/invoices error:", error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return Response.json({ error: "Eroare interna de server" }, { status: 500 });
   }
 }
 
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   try {
     const session = await getSessionAction();
     if (!session) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return Response.json({ error: "Neautorizat" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -58,22 +58,22 @@ export async function POST(request: Request) {
     });
 
     if (!validation.success) {
-      return Response.json({ error: "Validation failed", issues: validation.error.errors }, { status: 400 });
+      return Response.json({ error: "Validarea a esuat", issues: validation.error.errors }, { status: 400 });
     }
 
     const company = await companyService.getById(validation.data.companyId);
-    if (!company || company.ownerId !== session.user.userId) {
-      return Response.json({ error: "Company not found" }, { status: 404 });
+    if (!company || company.ownerId !== session.user.id) {
+      return Response.json({ error: "Compania nu a fost gasita" }, { status: 404 });
     }
 
     const client = await clientService.getById(validation.data.clientId);
     if (!client) {
-      return Response.json({ error: "Client not found" }, { status: 404 });
+      return Response.json({ error: "Clientul nu a fost gasit" }, { status: 404 });
     }
 
     const series = await prisma.invoiceSeries.findUnique({ where: { id: validation.data.seriesId } });
     if (!series || series.companyId !== validation.data.companyId) {
-      return Response.json({ error: "Invoice series not found" }, { status: 404 });
+      return Response.json({ error: "Seria de facturi nu a fost gasita" }, { status: 404 });
     }
 
     const invoiceNumber = validation.data.invoiceNumber || String(series.currentNumber);
@@ -95,16 +95,16 @@ export async function POST(request: Request) {
     });
 
     await activityService.log({
-      userId: session.user.userId,
+      userId: session.user.id,
       type: "INVOICE_ACTION",
-      action: "Created invoice",
+      action: "Factura creata",
       details: { invoiceId: invoice.id, invoiceNumber: invoice.invoiceNumber },
     });
 
     return Response.json(invoice, { status: 201 });
   } catch (error) {
     console.error("POST /api/invoices error:", error);
-    const message = error instanceof Error ? error.message : "Internal server error";
+    const message = error instanceof Error ? error.message : "Eroare interna de server";
     return Response.json({ error: message }, { status: 500 });
   }
 }

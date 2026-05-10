@@ -10,8 +10,8 @@ interface UseCompanyLookupReturn {
 }
 
 /**
- * Hook to fetch company data from ANAF service by VAT/CUI
- * @returns Object with loading, error, data states and lookup function
+ * Hook pentru obtinerea datelor companiei din serviciul ANAF dupa VAT/CUI
+ * @returns Obiect cu stari de loading, error, data si functia de cautare
  */
 export function useCompanyLookup(): UseCompanyLookupReturn {
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,7 @@ export function useCompanyLookup(): UseCompanyLookupReturn {
 
   const lookupByVat = useCallback(async (vat: string) => {
     if (!vat.trim()) {
-      setError("VAT is required");
+      setError("VAT este obligatoriu");
       return;
     }
 
@@ -33,17 +33,17 @@ export function useCompanyLookup(): UseCompanyLookupReturn {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to lookup company");
+        throw new Error(errorData.error || "Nu s-au putut obtine datele companiei");
       }
 
       const result = await response.json();
       if (result.success && result.data) {
         setData(result.data);
       } else {
-        throw new Error("Invalid response from server");
+        throw new Error("Raspuns invalid de la server");
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : "An unexpected error occurred";
+      const message = err instanceof Error ? err.message : "A aparut o eroare neasteptata";
       setError(message);
       setData(null);
     } finally {
