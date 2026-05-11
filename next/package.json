@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "tsx prisma/seed.ts",
-    "prisma": "node scripts/prisma-with-env.mjs"
+    "prisma": "node scripts/prisma-with-env.mjs",
+    "test": "vitest",
+    "test:run": "vitest run --coverage",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@prisma/client": "^5.15.0",
@@ -32,15 +35,22 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.5",
+    "@vitest/ui": "^4.1.5",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "jsdom": "^22.1.0",
     "prisma": "^5.15.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite": "^7.1.0",
+    "vitest": "^4.1.5"
   }
 }
